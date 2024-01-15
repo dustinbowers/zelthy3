@@ -1,0 +1,64 @@
+{% load crispy_forms_tags %}
+{% load zstatic %}
+
+{% block page_content %}
+<form method="post">
+    {% csrf_token %}
+</form>
+<form id="rowactionform" action="./?action_type=row&action_key=''&pk=''" method="post"  enctype="multipart/form-data" class="modal-content-form">
+    <div class="modal-content-form-body">
+        {% crispy form  %}<br>
+        <input type="hidden" name="form" value="rowactionform">
+        <button type="submit" class="modal-form-submit-button">Submit</button>                 
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        let csrfToken = $('input[name="csrfmiddlewaretoken"]').val();   
+        });
+</script>
+
+<script>
+$(document).ready(function() {
+    $(document).find('.modal-content-form-body').find("select").select2({
+        placeholder: "Select"
+    });
+
+    $("#rowactionform").submit(function(event) {
+        // Prevent the form from submitting the traditional way
+        event.preventDefault();
+        $(document).find(".overlay-spinner").show();
+        $(this).find("button[type='submit']").attr("disabled", true);
+        // Get the form data
+        var formData = $(this).serialize();
+
+        // Submit the form via AJAX
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'), // Use the form's action attribute as the AJAX endpoint
+            data: formData,
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    alert(response.msg); // Optional: Show a success message
+                    location.reload();  // Reload the page
+                } else {
+                    alert("An error occurred.");
+                }
+                $(document).find(".overlay-spinner").hide();
+                $(this).find("button[type='submit']").attr("disabled", false);
+            },
+            error: function() {
+                alert("Failed to submit the form.");
+                $(document).find(".overlay-spinner").hide();
+                $(this).find("button[type='submit']").attr("disabled", false);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
+

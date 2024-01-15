@@ -1,0 +1,28 @@
+{% extends 'crud/detail.html' %}
+
+
+{% block detail_view_side_content %}   
+<style>
+    /* Style for the anchor button */
+    .nice-button {
+        /* display: inline-block; */
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #e1d6ae; /* Blue background color */
+        color: #ffffff; /* White text color */
+        border-radius: 5px; /* Rounded corners */
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+    /* Hover effect */
+    .nice-button:hover {
+        background-color: black; /* Slightly darker blue on hover */
+    }
+</style>
+{% if host_join_link %}
+    <a target="_blank" href="{{ host_join_link }}" class="nice-button">Join as Host</a>
+{% endif %}
+{% endblock %}

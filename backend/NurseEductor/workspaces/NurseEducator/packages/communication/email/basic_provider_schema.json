@@ -1,0 +1,161 @@
+{
+  "json_schema":{
+     "title":"Email Configuration",
+     "type":"object",
+     "properties":{
+        "from_email": {
+           "type":"string",
+           "title":"From Email"
+        },
+        "smtp_host":{
+           "type":"string",
+           "title":"SMTP Host"
+        },
+        "smtp_port":{
+           "type":"string",
+           "title":"SMTP Port",
+           "pattern":"^\\d+$"
+        },
+        "smtp_username":{
+           "type":"string",
+           "title":"SMTP Username"
+        },
+        "smtp_password":{
+           "type":"string",
+           "title":"SMTP Password"
+        },
+        "smtp_encryption":{
+           "type":"string",
+           "title":"SMTP Encryption",
+           "default":"SSL",
+           "enum":[
+              "SSL",
+              "TLS"
+           ]
+        },
+        "imap_host":{
+           "type":"string",
+           "title":"IMAP Host"
+        },
+        "imap_port":{
+           "type":"string",
+           "title":"IMAP Port",
+           "pattern":"^\\d+$"
+        },
+        "imap_username":{
+           "type":"string",
+           "title":"IMAP Username"
+        },
+        "imap_password":{
+           "type":"string",
+           "title":"IMAP Password"
+        },
+        "imap_encryption":{
+           "type":"string",
+           "title":"IMAP Encryption",
+           "default":"SSL",
+           "enum":[
+              "SSL",
+              "TLS"
+           ]
+        }
+     },
+     "required":[
+        "smtp_host",
+        "smtp_port",
+        "smtp_username",
+        "smtp_password",
+        "smtp_encryption"
+     ]
+  },
+  "ui_schema":{
+     "from_email":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter From Email",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "smtp_host":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter SMTP Host",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "smtp_port":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter SMTP Port",
+        "ui:errorMessages":{
+           "required":"This field is required.",
+           "pattern": "Only numbers are allowed"
+        }
+     },
+     "smtp_username":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter SMTP Username",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "smtp_password":{
+        "ui:widget":"PasswordFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter SMTP Password",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "smtp_encryption":{
+        "ui:widget":"RadioFieldWidget",
+        "ui:autofocus":true
+     },
+     "imap_host":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter IMAP Host",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "imap_port":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter IMAP Port",
+        "ui:errorMessages":{
+           "required":"This field is required.",
+           "pattern": "Only numbers are allowed"
+        }
+     },
+     "imap_username":{
+        "ui:widget":"TextFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter IMAP Username",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "imap_password":{
+        "ui:widget":"PasswordFieldWidget",
+        "ui:autofocus":true,
+        "ui:placeholder":"Enter IMAP Password",
+        "ui:errorMessages":{
+           "required":"This field is required."
+        }
+     },
+     "imap_encryption":{
+        "ui:widget":"RadioFieldWidget",
+        "ui:autofocus":true
+     }
+  },
+  "form_data": {
+    "smtp_port": "587",
+    "smtp_encryption": "SSL",
+    "imap_port": "993",
+    "imap_encryption": "SSL"
+  }
+}

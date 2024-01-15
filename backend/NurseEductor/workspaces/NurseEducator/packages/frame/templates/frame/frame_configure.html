@@ -1,0 +1,26 @@
+{% block page_content %}
+<div style="padding:20px">
+<h2>Frames Configuration</h2><br>
+
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+  <br><br>
+  {% for d in data %}
+    ----------
+    <p>User Role: {{d.role}} </p>
+    <p>Config: {{d.config}}</p>
+    {% if token %}
+      <a href="/frame/configure/?action=delete&id={{d.id}}&token={{token}}">Delete</a>
+    {% else %}
+      <a href="/frame/configure/?action=delete&id={{d.id}}">Delete</a>
+    {% endif %}
+
+    <br>----------
+  {% endfor %}
+</div>
+
+{% endblock %}

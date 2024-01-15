@@ -1,0 +1,120 @@
+{
+    "version": "1.0.0",
+    "modules": [
+        {
+            "name": "app_landing",
+            "path": "app_landing"
+        },
+        {
+            "name": "hospitals",
+            "path": "hospitals"
+        },
+        {
+            "name": "doctors",
+            "path": "doctors"
+        },
+        {
+            "name": "patients",
+            "path": "patients"
+        },
+        {
+            "name": "adverse_events",
+            "path": "adverse_events"
+        },
+        {
+            "name": "product_complaints",
+            "path": "product_complaints"
+        },
+        {
+            "name": "nurse_educators",
+            "path": "nurse_educators"
+        },
+        {
+            "name": "tasks",
+            "path": "tasks"
+        },
+        {
+            "name": "appointment",
+            "path": "appointment"
+        }
+    ],
+    "app_routes": [
+        {
+            "re_path": "^",
+            "module": "app_landing",
+            "url": "urls"
+        },
+        {
+            "re_path": "^hospitals/",
+            "module": "hospitals",
+            "url": "urls"
+        },
+        {
+            "re_path": "^doctors/",
+            "module": "doctors",
+            "url": "urls"
+        },
+        {
+            "re_path": "^patients/",
+            "module": "patients",
+            "url": "urls"
+        },
+        {
+            "re_path": "^adverse_events/",
+            "module": "adverse_events",
+            "url": "urls"
+        },
+        {
+            "re_path": "^product_complaints/",
+            "module": "product_complaints",
+            "url": "urls"
+        },
+        {
+            "re_path": "^nurse_educators/",
+            "module": "nurse_educators",
+            "url": "urls"
+        },
+        {
+            "re_path": "^tasks/",
+            "module": "tasks",
+            "url": "urls"
+        },
+        {
+            "re_path": "^appointment/",
+            "module": "appointment",
+            "url": "urls"
+        }
+    ],
+    "package_routes": [
+        {
+            "re_path": "^crud/",
+            "package": "crud",
+            "url": "urls"
+        },
+        {
+            "re_path": "^frame/",
+            "package": "frame",
+            "url": "urls"
+        },
+        {
+            "re_path": "^auth/",
+            "package": "loginSignup",
+            "url": "urls"
+        },
+        {
+            "re_path": "^communication/",
+            "package": "communication",
+            "url": "urls"
+        },
+        {
+            "re_path": "^infobip/",
+            "package": "infobip",
+            "url": "urls"
+        },
+        {
+            "re_path": "^zoom/",
+            "package": "zoom",
+            "url": "urls"
+        }
+    ]
+}

@@ -1,0 +1,58 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "configure",
+            "path": "configure"
+        },
+        {
+            "name": "email",
+            "path": "email"
+        },
+        {
+            "name": "sms",
+            "path": "sms"
+        },
+        {
+            "name": "dashboard",
+            "path": "dashboard"
+        },
+        {
+            "name": "videocall",
+            "path": "videocall"
+        }
+    ],
+    "app_routes": [
+       
+        {
+            "re_path": "^sms/",
+            "module": "sms",
+            "url": "urls"
+        },
+        {
+            "re_path": "^email/",
+            "module": "email",
+            "url": "urls"
+        },
+        {
+            "re_path": "^configure/",
+            "module": "configure",
+            "url": "urls"
+        },
+        {
+            "re_path": "^dashboard/",
+            "module": "dashboard",
+            "url": "urls"
+        },
+        {
+            "re_path": "^videocall/",
+            "module": "videocall",
+            "url": "urls"
+        }
+        
+    ],
+    "package_routes": []
+    
+}
+
+

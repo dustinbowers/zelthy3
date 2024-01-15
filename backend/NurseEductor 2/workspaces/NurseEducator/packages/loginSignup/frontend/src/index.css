@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&family=Open+Sans:wght@400;600&family=Source+Sans+Pro:wght@400;600&display=swap');
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Invention'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_Rg.woff)
+			format('woff');
+}
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Invention Italic'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_Italics_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_It.woff)
+			format('woff');
+}
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: local('Invention Bold'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_Bd.woff)
+			format('woff');
+}
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: italic;
+	font-weight: 700;
+	font-display: swap;
+	src: local('Invention Bold Italic'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_Italics_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_BdIt.woff)
+			format('woff');
+}
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: local('Invention Light'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_Lt.woff)
+			format('woff');
+}
+
+@font-face {
+	font-family: 'Invention App';
+	font-style: italic;
+	font-weight: 300;
+	font-display: swap;
+	src: local('Invention Light Italic'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/InventionVF_Italics_W_Wght.woff2)
+			format('woff2'),
+		url(https://www.msd.com/wp-content/themes/mhh-mhh2-msd-theme/fonts/Invention_W_LtIt.woff)
+			format('woff');
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* :root {
+  --hfc-green-100: <?php echo $color; ?>;
+} */
+
+html, body {
+  height: 100%;
+}
+.content-title {
+  font-family: Source Sans Pro !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.bg-bgColor {
+  background-color: var(--bgColor);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-boxBg {
+  background-color: var(--boxBg);
+}
+
+.svgColor {
+  fill: red;
+}
+
+.inputBg {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><text x="5" y="30" class="svgColor" style="font: normal 16px Helvetica;">+91</text></svg>') no-repeat;
+  padding-left: 34px;
+  /* bg-[url(`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='30'><text x='5' y='19' style='font: bold 16px Arial;'>+91</text></svg>`)] */
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding-left: 0.5rem;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+.input-box .prefix {
+  font-weight: 400;
+  font-size: 16px;
+  color: #696969;
+}
+
+.input-box input {
+  flex-grow: 1;
+  font-size: 16px;
+  background: #fff;
+  border: none;
+  outline: none;
+  padding: 0.4rem;
+}
+
+.input-box:focus-within {
+  border-color: #777;
+}
+
+.privacy-tnc-list{
+  list-style: disc;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+
+@layer base {
+  ul, ol {
+    list-style-type: disc;
+    list-style: disc;
+  }
+}
+
+ul, ol {
+  padding-left: 2rem;
+  list-style: disc !important;
+}

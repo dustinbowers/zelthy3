@@ -1,0 +1,25 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "base",
+            "path": "base"
+        }
+    ],
+    "app_routes": [
+        {
+            "re_path": "^base/",
+            "module": "frame",
+            "url": "urls"
+        },
+        {
+            "re_path": "^configure/",
+            "module": "configure",
+            "url": "urls"
+        }
+    ],
+    "package_routes": [],
+    "dependencies":[]    
+}
+
+

@@ -1,0 +1,30 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "configure",
+            "path": "configure"
+        },
+        {
+            "name": "sms",
+            "path": "sms"
+        }
+    ],
+    "app_routes": [       
+        {
+            "re_path": "^sms/",
+            "module": "sms",
+            "url": "urls"
+        },       
+        {
+            "re_path": "^configure/",
+            "module": "configure",
+            "url": "urls"
+        }
+        
+    ],
+    "plugin_routes": []
+    
+}
+
+

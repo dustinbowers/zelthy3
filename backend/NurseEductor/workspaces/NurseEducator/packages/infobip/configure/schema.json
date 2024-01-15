@@ -1,0 +1,51 @@
+{
+    "json_schema": {
+        "title": "API Configuration",
+        "type": "object",
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "title": "API Key"
+          },
+          "base_url": {
+            "type": "string",
+            "title": "Base URL",
+            "default":"https://lzqk2w.api.infobip.com",
+            "pattern":"^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w.-]*)*\\/?$"
+          },
+          "src": {
+            "type": "string",
+            "title": "Source",
+            "description": "SRC-Sender Code e.g BH-ZELTHY",
+            "minLength": 1
+          }
+        },
+        "required": ["api_key", "base_url", "src"]
+    },
+    "ui_schema": {
+        "api_key": {
+          "ui:widget": "PasswordFieldWidget",
+          "ui:placeholder": "Enter API Key",
+          "ui:errorMessages": {
+            "required": "This field is required."
+          }
+        },
+        "base_url": {
+          "ui:widget": "TextFieldWidget",
+          "ui:placeholder": "Enter Base URL",
+          "ui:errorMessages": {
+            "required": "This field is required.",
+            "pattern": "Invalid URL."
+          },
+          "ui:autofocus": true
+        },
+        "src": {
+          "ui:widget": "TextFieldWidget",
+          "ui:placeholder": "Enter Source",
+          "ui:errorMessages": {
+            "required": "This field is required.",
+            "minLength": "This field is required."
+          }
+        }
+    }       
+}

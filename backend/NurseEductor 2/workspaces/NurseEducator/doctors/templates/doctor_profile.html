@@ -1,0 +1,152 @@
+{% load zstatic %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Nurse Educator Platform</title>
+    <script>
+        // var csrf_token = "yuI1ywJIbp9lxLNMpcOUtvitM1h5uhH7uK6Hu0AT9gXTk13xNdFDnNza2FYhuCIM";
+        var csrf_token = "{{ csrf_token }}";
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <style>
+        :root {
+            --primary-color: #58b19f;
+            /* Red */
+            --second-color: #343e3d;
+            /* Green */
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div style="display: flex;">
+        <div class="zelthy-rjsf"></div>
+        <div class="zelthy-rjsf2"></div>
+        <div class="zelthy-rjsf3"></div>
+    </div>
+    <div class="zelthy-dynamic-form" data-config='
+        {
+        "get_data": {
+            "is_api_based": false,
+            "url": "/layout_form",
+            "static_config": {
+                "form": {
+                    "json_schema": {
+                        "title": "Doctor Enrollment",
+                        "description": "Please enter the details.",
+                        "type": "object",
+                        "required": [
+                            "first_name",
+                            "last_name",
+                            "medical_registration_number",
+                            "hospital",
+                            "is_confirm"
+                        ],
+                        "properties": {
+                            "first_name": {
+                                "type": "string",
+                                "title": "First name"
+                            },
+                            "last_name": {
+                                "type": "string",
+                                "title": "Last name"
+                            },
+                            "medical_registration_number": {
+                                "type": "string",
+                                "title": "Medical Registration Number"
+                            },
+                            "hospital": {
+                                "title": "Hospital/Clinic",
+                                "type": "string",
+                                "oneOf": [
+                                    {
+                                        "const": "1",
+                                        "title": "DKSH Hospital"
+                                    }
+                                ]
+                            },
+                            "is_confirm": {
+                                "type": "boolean",
+                                "title": "I have read, understand and accept the Terms of use and Privacy Policy"
+                            }
+                        }
+                    },
+                    "ui_schema": {
+                        "first_name": {
+                            "ui:widget": "TextFieldWidget",
+                            "ui:classNames": "col-span-12 md:col-span-4 lg:col-span-3",
+                            "ui:placeholder": "Please Enter First Name.",
+                            "ui:errorMessages": {
+                                "required": "This field is required."
+                            }
+                        },
+                        "last_name": {
+                            "ui:widget": "TextFieldWidget",
+                            "ui:classNames": "col-span-12 md:col-span-4 lg:col-span-3",
+                            "ui:placeholder": "Please Enter Last Name.",
+                            "ui:errorMessages": {
+                                "required": "This field is required."
+                            }
+                        },
+                        "medical_registration_number": {
+                            "ui:widget": "TextFieldWidget",
+                            "ui:classNames": "col-span-12 md:col-span-4 lg:col-span-3",
+                            "ui:placeholder": "Please Enter Medical Registration Number.",
+                            "ui:errorMessages": {
+                                "required": "This field is required."
+                            }
+                        },
+                        "hospital": {
+                            "ui:widget": "SelectFieldWidget",
+                            "ui:classNames": "col-span-12 md:col-span-4 lg:col-span-3",
+                            "ui:placeholder": "Please select Hospital.",
+                            "ui:errorMessages": {
+                                "required": "This field is required."
+                            }
+                        },
+                        "is_confirm": {
+                            "ui:options": {
+                                "label": false
+                            },
+                            "ui:widget": "CheckboxFieldWidget",
+                            "ui:classNames": "col-span-12",
+                            "ui:errorMessages": {
+                                "required": "This field is required."
+                            },
+                            "ui:enableMarkdownInDescription": true,
+                            "ui:description": ""
+                        },
+                        "ui:submitButtonOptions":{
+                            "props":{
+                                "disabled":false,
+                                "className":"md:w-fit self-center"
+                            },
+                            "norender":false,
+                            "submitText":"Save"
+                        }
+                    }
+                }
+            }
+        },
+        "post_data": {
+            "http_method": "POST",
+            "url": "/doctors/doctor-profile-update/",
+            "payload_type": "FORMDATA"
+        }
+    }'>
+</body>
+
+{% block js %}
+<script src="{% zstatic 'build.v1.0.13.min.js' %}"></script>
+{% endblock %}
+</html>

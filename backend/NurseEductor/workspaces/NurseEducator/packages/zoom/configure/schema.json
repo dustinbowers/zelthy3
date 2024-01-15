@@ -1,0 +1,62 @@
+{
+    "json_schema": {
+        "title": "Add New Config",
+        "type": "object",
+        "required": [
+            "sdk_key",
+            "sdk_secret",
+            "refresh_token",
+            "organizer_id"
+        ],
+        "properties": {
+            "sdk_key": {
+                "type": "string",
+                "title": "SDK KEY"
+            },
+            "sdk_secret": {
+                "type": "string",
+                "title": "SDK SECRET"
+            },
+            "refresh_token": {
+                "type": "string",
+                "format": "string",
+                "title": "Refresh Token"
+            },
+            "organizer_id": {
+                "type": "string",
+                "format": "string",
+                "title": "Licensed Zoom User Id/Email ID"
+            }
+        }
+    },
+    "ui_schema": {
+        "sdk_key": {
+            "ui:widget": "TextFieldWidget",
+            "ui:placeholder": "Please Enter SDK Key",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "sdk_secret": {
+            "ui:widget": "PasswordFieldWidget",
+            "ui:placeholder": "Please enter SDK Secret",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "refresh_token": {
+            "ui:widget": "TextFieldWidget",
+            "ui:placeholder": "Please Enter Refresh Token",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "organizer_id": {
+            "ui:widget": "TextFieldWidget",
+            "ui:placeholder": "Please Enter the User ID",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "version": "0.1.0",
+    "modules": [ 
+        {
+            "name": "base",
+            "path": "base"
+        }
+    ],
+    "app_routes": [
+    ],
+    "package_routes": [],
+    "dependencies":[]    
+}
+
+

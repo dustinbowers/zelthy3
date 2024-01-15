@@ -1,0 +1,36 @@
+{
+    "packages": [
+        {
+            "name": "crud",
+            "version": "0.1.0"
+        },
+        {
+            "name": "frame",
+            "version": "0.1.0"
+        },
+        {
+            "name": "communication",
+            "version": "0.1.0"
+        },
+        {
+            "name": "loginSignup",
+            "version": "0.1.0"
+        },
+        {
+            "name": "infobip",
+            "version": "0.1.0"
+        },
+        {
+            "name": "appointments",
+            "version": "0.1.0"
+        },
+        {
+            "name": "workflow",
+            "version": "0.1.0"
+        },
+        {
+            "name": "zoom",
+            "version": "0.1.0"
+        }
+    ]
+}

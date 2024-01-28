@@ -307,7 +307,7 @@ class Workspace:
             _plugin = self.plugin_source.load_plugin(mod_path_str)
 
             for name, method in inspect.getmembers(_plugin):
-                if isinstance(method, Task):
+                if getattr(method, "zelthy_task", False) == True:
                     task_path = f"{mod_path_str}.{name}"
                     try:
                         task = AppTask.objects.get(name=task_path)

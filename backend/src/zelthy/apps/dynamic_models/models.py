@@ -391,12 +391,17 @@ class DynamicModelBase(models.Model, metaclass=RegisterOnceModeMeta):
 
             # Create an object in ObjectStore when object is getting created
             content_type = ContentType.objects.get_for_model(self)
-            ObjectStore.objects.create(
-                object_uuid=self.object_uuid,
-                content_type=content_type,
-                object_id=self.pk,
-                content_object=self,
-            )
+            try:
+                ObjectStore.objects.get(
+                    object_uuid=self.object_uuid, content_type=content_type
+                )
+            except ObjectStore.DoesNotExist:
+                ObjectStore.objects.create(
+                    object_uuid=self.object_uuid,
+                    content_type=content_type,
+                    object_id=self.pk,
+                    content_object=self,
+                )
             return resp
         if self.pk and self.has_perm("edit"):
             return super().save(*args, **kwargs)

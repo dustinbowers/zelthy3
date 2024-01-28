@@ -4,12 +4,17 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 import importlib
 
+from zelthy.apps.auditlog.manager import LogEntryManager
+
 
 class ObjectStore(models.Model):
     object_uuid = models.UUIDField(editable=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
+    audit_log = models.JSONField(default=dict, null=True, blank=True)
+
+    objects = LogEntryManager()
 
     @classmethod
     def get_object(cls, object_uuid):

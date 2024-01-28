@@ -23,7 +23,7 @@ SHARED_APPS = [
     "django.contrib.admin",
     "crispy_forms",
     "crispy_bootstrap5",
-    "debug_toolbar",
+    # "debug_toolbar",
     # 'phonenumber_field',
     # 'django_otp',
     # 'django_otp.plugins.otp_static',
@@ -46,12 +46,13 @@ TENANT_APPS = [
     "zelthy.apps.appauth",
     "zelthy.apps.permissions",
     "zelthy.apps.object_store",
+    "zelthy.apps.auditlog",
     "zelthy.apps.dynamic_models",
     "zelthy.apps.tasks",
     "corsheaders",
     "crispy_forms",
     "crispy_bootstrap5",
-    "debug_toolbar",
+    # "debug_toolbar",
     "crispy_forms"
     # "django_celery_results"
     # "cachalot",
@@ -81,7 +82,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 

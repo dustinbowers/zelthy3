@@ -4,7 +4,11 @@ from django.db.models import Model
 
 class AuditLogRegistry:
     def __init__(self, create=True, update=True, delete=True, custom=None):
-        from zelthy.apps.auditlog.receivers import log_create, log_update, log_delete
+        from zelthy_enterprise.apps.auditlog.receivers import (
+            log_create,
+            log_update,
+            log_delete,
+        )
 
         self._registry = {}
         self._signals = {}

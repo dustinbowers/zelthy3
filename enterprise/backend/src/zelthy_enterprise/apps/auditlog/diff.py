@@ -1,8 +1,18 @@
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Model, NOT_PROVIDED, DateTimeField
+from django.db.models import (
+    Model,
+    NOT_PROVIDED,
+    DateTimeField,
+    ForeignKey,
+    OneToOneField,
+    TimeField,
+)
 from django.utils import timezone
 from django.utils.encoding import smart_str
+from django.apps import apps
+
+from zelthy.apps.dynamic_models.fields import ZOneToOneField, ZForeignKey
 
 
 def track_field(field):
@@ -61,7 +71,20 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
-    if isinstance(field, DateTimeField):
+    if isinstance(field, ZForeignKey) or isinstance(field, ZOneToOneField):
+        if obj is not None:
+            model_obj = field.related_model.objects.get(
+                id=getattr(obj, f"{field.name}_id", None)
+            )
+            value = model_obj.object_uuid
+        else:
+            value = None
+    elif isinstance(field, ForeignKey) or isinstance(field, OneToOneField):
+        if obj is not None:
+            value = getattr(obj, f"{field.name}_id", None)
+        else:
+            value = None
+    elif isinstance(field, DateTimeField) or isinstance(field, TimeField):
         # DateTimeFields are timezone-aware, so we need to convert the field
         # to its naive form before we can accuratly compare them for changes.
         try:
@@ -80,7 +103,7 @@ def get_field_value(obj, field):
 
 
 def model_instance_diff(old, new):
-    from zelthy.apps.auditlog.registry import auditlog
+    from zelthy_enterprise.apps.auditlog.registry import auditlog
 
     if not (old is None or isinstance(old, Model)):
         raise TypeError("The supplied old instance is not a valid model instance.")

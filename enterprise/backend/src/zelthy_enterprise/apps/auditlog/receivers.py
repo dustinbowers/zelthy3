@@ -7,13 +7,12 @@ def log_create(sender, instance, created, **kwargs):
 
     Direct use is discouraged, connect your model through :py:func:`auditlog.registry.register` instead.
     """
-    from zelthy.apps.auditlog.diff import model_instance_diff
-    from zelthy.apps.object_store.models import ObjectStore
+    from zelthy_enterprise.apps.auditlog.diff import model_instance_diff
+    from zelthy_enterprise.apps.auditlog.models import AuditLog
 
     if created:
         changes = model_instance_diff(None, instance)
-        print("Instance is ", instance, type(instance))
-        log_entry = ObjectStore.objects.log_create(
+        log_entry = AuditLog.objects.log_create(
             instance,
             action="CREATE",
             changes=json.dumps(changes),
@@ -26,8 +25,8 @@ def log_update(sender, instance, **kwargs):
 
     Direct use is discouraged, connect your model through :py:func:`auditlog.registry.register` instead.
     """
-    from zelthy.apps.auditlog.diff import model_instance_diff
-    from zelthy.apps.object_store.models import ObjectStore
+    from zelthy_enterprise.apps.auditlog.diff import model_instance_diff
+    from zelthy_enterprise.apps.auditlog.models import AuditLog
 
     if instance.pk is not None:
         try:
@@ -41,7 +40,7 @@ def log_update(sender, instance, **kwargs):
 
             # Log an entry only if there are changes
             if changes:
-                log_entry = ObjectStore.objects.log_create(
+                log_entry = AuditLog.objects.log_create(
                     instance,
                     action="UPDATE",
                     changes=json.dumps(changes),
@@ -54,13 +53,13 @@ def log_delete(sender, instance, **kwargs):
 
     Direct use is discouraged, connect your model through :py:func:`auditlog.registry.register` instead.
     """
-    from zelthy.apps.auditlog.diff import model_instance_diff
-    from zelthy.apps.object_store.models import ObjectStore
+    from zelthy_enterprise.apps.auditlog.diff import model_instance_diff
+    from zelthy_enterprise.apps.auditlog.models import AuditLog
 
     if instance.pk is not None:
         changes = model_instance_diff(instance, None)
 
-        log_entry = ObjectStore.objects.log_create(
+        log_entry = AuditLog.objects.log_create(
             instance,
             action="DELETE",
             changes=json.dumps(changes),

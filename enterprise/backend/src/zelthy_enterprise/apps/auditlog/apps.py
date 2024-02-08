@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class AuditLogConfig(AppConfig):
-    name = "zelthy.apps.auditlog"
+    name = "zelthy_enterprise.apps.auditlog"
     label = "auditlog"

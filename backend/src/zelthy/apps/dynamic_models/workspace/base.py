@@ -2,10 +2,15 @@ from __future__ import annotations
 import json
 import os
 import re
+import inspect
+from django.db import models
 
 from django.conf import settings
 from django.db import connection
 from django.http import Http404
+
+from zelthy_enterprise.apps.auditlog.registry import auditlog
+from zelthy.apps.dynamic_models.models import DynamicModelBase
 
 # from zelthy.core.pluginbase1 import PluginBase, PluginSource
 
@@ -43,7 +48,6 @@ from zelthy.core.custom_pluginbase import get_plugin_source
 
 
 class Workspace:
-
     """
     This is the main interface for interacting with the workspace codebase.
     Workspace is initialized under the request response cycle. It is
@@ -285,7 +289,14 @@ class Workspace:
             if m.split(".")[2] == "packages" and migration:
                 continue
             split = m.split(".")[2:]
-            self.plugin_source.load_plugin(".".join(split))
+            module = self.plugin_source.load_plugin(".".join(split))
+            for name, obj in inspect.getmembers(module):
+                if (
+                    isinstance(obj, type)
+                    and issubclass(obj, DynamicModelBase)
+                    and obj != DynamicModelBase
+                ):
+                    auditlog.register(obj)
         return
 
     def sync_tasks(self, tenant_name) -> None:

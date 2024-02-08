@@ -51,36 +51,35 @@ class LogEntryManager(models.Manager):
             #             object_pk=kwargs.get("object_pk", ""),
             #         ).delete()
             db = instance._state.db
-
-            # object_store = apps.get_model("object_store", "ObjectStore")
-            # print(object_store.audits.all())
-            # return object_store.audits.get(object_id=instance.pk).update(
-            #     audit_log={{"1": kwargs.get("changes")}}
-            # )
+            auditlog = apps.get_model("auditlog", "AuditLog")
             request = get_current_request()
+            change_log = {
+                "changes": json.loads(changes),
+                "action": kwargs.get("action"),
+                "actor": (
+                    request.user.name
+                    if str(request.user) != "AnonymousUser"
+                    else "AnonymousUser"
+                ),
+                "remote_addr": request.META.get("REMOTE_ADDR"),
+            }
+
             if kwargs.get("action") == "CREATE":
+                # obj.audit_log = {
+                #     "1": {
+                #         "changes": json.loads(changes),
+                #         "action": kwargs.get("action"),
+                #         "actor": request.user.name,
+                #         "remote_addr": request.META.get("REMOTE_ADDR"),
+                #     }
+                # }
                 return self.create(
-                    content_type=kwargs.get("content_type"),
-                    object_id=kwargs.get("object_id"),
-                    audit_log={
-                        "1": {
-                            "changes": json.loads(changes),
-                            "action": kwargs.get("action"),
-                            "actor": request.user.name,
-                            "remote_addr": request.META.get("REMOTE_ADDR"),
-                        }
-                    },
+                    audit_log={"1": change_log},
                     object_uuid=instance.object_uuid,
                 )
             else:
-                object_store = apps.get_model("object_store", "ObjectStore")
-                obj = object_store.objects.get(object_uuid=instance.object_uuid)
-                obj.audit_log[int(list(obj.audit_log.keys())[-1]) + 1] = {
-                    "changes": json.loads(changes),
-                    "action": kwargs.get("action"),
-                    "actor": request.user.name,
-                    "remote_addr": request.META.get("REMOTE_ADDR"),
-                }
+                obj = auditlog.objects.get(object_uuid=instance.object_uuid)
+                obj.audit_log[int(list(obj.audit_log.keys())[-1]) + 1] = change_log
                 obj.save()
                 return obj
         return None

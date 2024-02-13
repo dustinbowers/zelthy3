@@ -46,7 +46,7 @@ TENANT_APPS = [
     "zelthy.apps.appauth",
     "zelthy.apps.permissions",
     "zelthy.apps.object_store",
-    "zelthy_enterprise.apps.auditlog",
+    "auditlog",
     "zelthy.apps.dynamic_models",
     "zelthy.apps.tasks",
     "corsheaders",

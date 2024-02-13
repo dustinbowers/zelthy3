@@ -9,7 +9,9 @@ from django.conf import settings
 from django.db import connection
 from django.http import Http404
 
-from zelthy_enterprise.apps.auditlog.registry import auditlog
+# from zelthy_enterprise.apps.auditlog.registry import auditlog
+
+from auditlog.registry import auditlog
 from zelthy.apps.dynamic_models.models import DynamicModelBase
 
 # from zelthy.core.pluginbase1 import PluginBase, PluginSource

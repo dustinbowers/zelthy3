@@ -8,12 +8,16 @@ from django.apps import apps
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
+from django.db import router, transaction
+from django.db.models.signals import post_save, pre_save
+from auditlog.receivers import custom
 
 from zelthy.apps.appauth.models import AppUserModel
 from zelthy.core.utils import get_current_request, get_current_role
 from zelthy.apps.shared.platformauth.models import PlatformUserModel
 from zelthy.apps.dynamic_models.permissions import is_platform_user
-from zelthy_enterprise.apps.auditlog.receivers import log_create
+
+# from zelthy_enterprise.apps.auditlog.receivers import log_create
 
 from zelthy.apps.object_store.models import ObjectStore
 
@@ -389,22 +393,7 @@ class DynamicModelBase(models.Model, metaclass=RegisterOnceModeMeta):
         if is_platform_user(request):
             return super().save(*args, **kwargs)
         if is_create_operation and self.has_perm("create"):
-            # post_save.disconnect(log_create, self)
             resp = super().save(*args, **kwargs)
-            # Create an object in ObjectStore when object is getting created
-            content_type = ContentType.objects.get_for_model(self)
-            # try:
-            #     ObjectStore.objects.get(
-            #         object_uuid=self.object_uuid, content_type=content_type
-            #     )
-            # except ObjectStore.DoesNotExist:
-            ObjectStore.objects.create(
-                object_uuid=self.object_uuid,
-                content_type=content_type,
-                object_id=self.pk,
-                content_object=self,
-            )
-            # post_save.connect(log_create, self)
             return resp
         if self.pk and self.has_perm("edit"):
             return super().save(*args, **kwargs)

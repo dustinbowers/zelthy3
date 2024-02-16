@@ -82,7 +82,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "zelthy.middleware.tenant.TimezoneMiddleware",
+    "zelthy.middleware.request.HomePageMiddleware",
 ]
 
 

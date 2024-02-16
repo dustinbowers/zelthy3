@@ -4,9 +4,18 @@ from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import NOT_PROVIDED, DateTimeField, ForeignKey, JSONField, Model
+from django.db.models import (
+    NOT_PROVIDED,
+    DateTimeField,
+    ForeignKey,
+    JSONField,
+    Model,
+    OneToOneField,
+)
 from django.utils import timezone as django_timezone
 from django.utils.encoding import smart_str
+
+from zelthy.apps.dynamic_models.fields import ZOneToOneField, ZForeignKey
 
 
 def track_field(field):
@@ -63,7 +72,20 @@ def get_field_value(obj, field):
     :rtype: str
     """
     try:
-        if isinstance(field, DateTimeField):
+        if isinstance(field, ZForeignKey) or isinstance(field, ZOneToOneField):
+            if obj is not None:
+                model_obj = field.related_model.objects.get(
+                    id=getattr(obj, f"{field.name}_id", None)
+                )
+                value = model_obj.object_uuid
+            else:
+                value = None
+        elif isinstance(field, ForeignKey) or isinstance(field, OneToOneField):
+            if obj is not None:
+                value = getattr(obj, f"{field.name}_id", None)
+            else:
+                value = None
+        elif isinstance(field, DateTimeField):
             # DateTimeFields are timezone-aware, so we need to convert the field
             # to its naive form before we can accurately compare them for changes.
             value = field.to_python(getattr(obj, field.name, None))

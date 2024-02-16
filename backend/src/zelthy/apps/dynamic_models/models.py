@@ -6,15 +6,9 @@ from django.db import models, connection
 from django.db.models import Q
 from django.apps import apps
 from django.core.exceptions import PermissionDenied
-from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save
-from django.db import router, transaction
-from django.db.models.signals import post_save, pre_save
-from auditlog.receivers import custom
 
 from zelthy.apps.appauth.models import AppUserModel
 from zelthy.core.utils import get_current_request, get_current_role
-from zelthy.apps.shared.platformauth.models import PlatformUserModel
 from zelthy.apps.dynamic_models.permissions import is_platform_user
 
 # from zelthy_enterprise.apps.auditlog.receivers import log_create

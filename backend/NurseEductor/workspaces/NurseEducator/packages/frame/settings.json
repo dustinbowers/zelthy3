@@ -8,6 +8,10 @@
         {
             "name": "configure",
             "path": "configure"
+        },
+        {
+            "name": "downloads",
+            "path": "downloads"
         }
     ],
     "app_routes": [
@@ -20,7 +24,13 @@
             "re_path": "^configure/",
             "module": "configure",
             "url": "urls"
+        },
+        {
+            "re_path": "^downloads/",
+            "module": "downloads",
+            "url": "urls"
         }
+        
     ],
     "package_routes": [],
     "dependencies":[]    

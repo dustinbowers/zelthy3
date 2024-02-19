@@ -1,0 +1,1633 @@
+{% extends 'frame/_base.html' %}
+{% load crispy_forms_tags %}
+{% load zstatic %} 
+
+{% block head %}
+    <title>{{page_title}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Source+Code+Pro:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.2.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.2.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js"></script>
+    
+    <script src="https:////cdn.datatables.net/plug-ins/1.13.6/pagination/input.js"></script>
+    
+    <link href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.bootstrap5.min.css"></link>
+    <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script> 
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
+        integrity="sha512-AvCfbOQzCVi2ctVWF4m89jLwTn/zVPJuS7rhiKyY3zqyCdbPqtvNa0I628GJqPytbowfFjkAGOpq85E5kQc40Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery-toast-plugin@1.3.2/dist/jquery.toast.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-toast-plugin@1.3.2/dist/jquery.toast.min.css">
+
+    <link rel="stylesheet" href="{% zstatic 'packages/crud/style.css' %}">
+    
+    <!-- TODO: handle custom css -->
+    {% block custom_css %}
+   
+    {% endblock %}
+
+{% endblock %}
+
+{% block page_content %}
+<style> 
+
+        .cards-container{
+            display: none;
+        }
+        .offcanvas-bottom{
+            height: fit-content !important;
+            max-height:80% !important;
+        }
+        .drawer-handle{
+            width: 65px;
+            height: 4px;
+            border-radius: 2px;
+            background:#DDE2E5;
+        }
+        .drawer-handle-wrapper{
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            padding: 4px 0px 0px 0px;
+        }
+        .details-offcanvas-body{
+            padding: 48px 24px 56px 24px;
+            display: flex;
+            flex-direction: column;
+            gap:12px;
+        }
+        .detail-title{
+            color: var(--neutral-dark-dark-700, #212429);
+            font-family: Lato;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 24px; 
+            letter-spacing: 0.2px;
+        }
+        .detail-status{
+            color: #1C1E27;
+            font-family: Lato;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px; 
+            letter-spacing: 0.2px;
+        }
+        .general-details-container{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .general-details{
+            display: flex;
+            gap: 8px;
+        }
+        .detail-label{
+            width: 140px;
+            color: var(--neutral-mid-mid-500, #6C747D);
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px; 
+            letter-spacing: 0.2px;
+        }
+        .detail-value{
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: var(--neutral-dark-black, #000);
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px; 
+            letter-spacing: 0.2px;
+        }
+    @media (max-width:640px)  {
+        .dataTables_scroll{
+            height: 100%;
+        }
+        .cards-container{
+            display: flex;
+            flex-direction: column;
+            gap:12px;
+            padding: 16px;
+            overflow: auto;
+            margin-bottom: 100px;
+        }
+        .card{
+            display: flex;
+            flex-direction: column;
+            gap:12px;
+            border-radius: 6px;
+            border: 1px solid var(--neutral-light-light-200, #DDE2E5);
+            background: #FFF;
+            box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.08);
+            padding: 16px 24px;
+        }
+        .card-title{
+            color: #212429;   
+            font-family: Lato;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+            letter-spacing: 0.2px;
+        }
+        .card-info-container{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card-info{
+            display: flex;
+            gap:8px;
+        }
+        .card-info-label{
+            color:  #6C747D;
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px; 
+            letter-spacing: 0.2px;
+            
+
+        }
+        .card-info-value{
+            color: #000;
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+            letter-spacing: 0.2px;
+        }
+        .card-status,.detail-status{
+            width: fit-content;
+            background-color: #A3ABB1;
+            /* color: #1C1E27; */
+            color: #fff;
+            font-family: Lato;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+            border-radius: 15px;
+            padding: 3px 8px;
+        }
+        .page-title-bar{
+            display: none;
+        }
+        .dataTables_scrollHead{
+            display:none !important;
+        }
+        .dataTables_scrollBody{
+            display:none !important;
+        }
+      
+    }
+    </style> 
+
+<form method="post">
+    {% csrf_token %}
+</form>
+
+<div class="page-title-bar">
+    <div>
+        <h2 class="page-title">{{page_title}}</h2>
+    </div>
+    {% if has_add_perm %}
+        <div>     
+            <button type="button" data-modal="page_add_modal" class="page-add-button">
+                <span class="page-add-button-label">
+                    {{add_btn_title}}
+                </span>
+                <div class="page-add-button-icon">
+
+                </div>
+            </button>
+        </div>
+    {% endif %}
+</div>
+<div class="overlay-spinner" style="display: none;"></div>
+<div id="page_add_modal" class="modal-overlay"  style="display:none;">
+    <div class="modal-content">
+        <button type="button" data-modal="page_add_modal" class="modal-close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <g clip-path="url(#clip0_5158_6104)">
+                    <path d="M17.7213 1.22117L10.5168 8.42571C10.2219 8.72061 9.75409 8.72061 9.48417 8.42571L2.27865 1.22117C1.98375 0.926275 1.51593 0.926275 1.24601 1.22117C0.951112 1.51607 0.951112 1.9839 1.24601 2.25382L8.45153 9.45933C8.74643 9.75423 8.74643 10.2221 8.45153 10.492L1.22117 17.7213C0.926275 18.0162 0.926275 18.4841 1.22117 18.754C1.51607 19.0489 1.9839 19.0489 2.25382 18.754L9.45933 11.5485C9.75423 11.2536 10.2221 11.2536 10.492 11.5485L17.7213 18.7788C18.0162 19.0737 18.4841 19.0737 18.754 18.7788C19.0489 18.4839 19.0489 18.0161 18.754 17.7462L11.5736 10.5158C11.2787 10.2209 11.2787 9.7531 11.5736 9.48319L18.7791 2.27767C19.074 1.98277 19.074 1.51494 18.7791 1.24503C18.4842 0.950129 18.0173 0.950129 17.7214 1.22101L17.7213 1.22117Z" fill="black" stroke="black" stroke-width="0.4"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_5158_6104">
+                    <rect width="20" height="20" fill="white"/>
+                    </clipPath>
+                </defs>
+            </svg>
+        </button>
+        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form" style="height: 100%"></div>
+        {% comment %} <form id="objectcreateform" action="" method="post"  enctype="multipart/form-data" class="modal-content-form">
+            
+            <div class="modal-content-form-body complete-hidden-scroll-style">
+                {% crispy form  %}<br>
+                <input type="hidden" name="form" value="objectcreateform">
+                <button type="submit" class="modal-form-submit-button">Submit</button>                 
+            </div>
+        </form> {% endcomment %}
+    </div>
+</div>
+
+<div id="row_actions_form_modal" class="modal-overlay"  style="display:none;">
+    <div class="modal-content">
+        <button type="button" data-modal="row_actions_form_modal" class="modal-close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <g clip-path="url(#clip0_5158_6104)">
+                    <path d="M17.7213 1.22117L10.5168 8.42571C10.2219 8.72061 9.75409 8.72061 9.48417 8.42571L2.27865 1.22117C1.98375 0.926275 1.51593 0.926275 1.24601 1.22117C0.951112 1.51607 0.951112 1.9839 1.24601 2.25382L8.45153 9.45933C8.74643 9.75423 8.74643 10.2221 8.45153 10.492L1.22117 17.7213C0.926275 18.0162 0.926275 18.4841 1.22117 18.754C1.51607 19.0489 1.9839 19.0489 2.25382 18.754L9.45933 11.5485C9.75423 11.2536 10.2221 11.2536 10.492 11.5485L17.7213 18.7788C18.0162 19.0737 18.4841 19.0737 18.754 18.7788C19.0489 18.4839 19.0489 18.0161 18.754 17.7462L11.5736 10.5158C11.2787 10.2209 11.2787 9.7531 11.5736 9.48319L18.7791 2.27767C19.074 1.98277 19.074 1.51494 18.7791 1.24503C18.4842 0.950129 18.0173 0.950129 17.7214 1.22101L17.7213 1.22117Z" fill="black" stroke="black" stroke-width="0.4"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_5158_6104">
+                    <rect width="20" height="20" fill="white"/>
+                    </clipPath>
+                </defs>
+            </svg>
+        </button>
+        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form" style="height: 100%"></div>
+        {% comment %} <form id="objectcreateform" action="" method="post"  enctype="multipart/form-data" class="modal-content-form" style="gap: 0;">
+            <h3 class="modal-title" style="padding-top: 32px; padding-left: 32px;">
+                Row Action Form
+            </h3>
+            
+            <div class="modal-content-form-body" style="padding-left: 32px; padding-right: 32px; padding-bottom: 32px;">
+                {% crispy form  %}<br>
+                <input type="hidden" name="form" value="objectcreateform">
+                <button type="submit" class="modal-form-submit-button" style="border: 1px solid black;">Submit</button>                 
+            </div>
+        </form> {% endcomment %}
+
+    </div>
+</div>
+
+<div class="row-action-simple-dialog-overlay">
+    <div class="row-action-simple-dialog">
+        <form class="row-action-simple-dialog-form">
+            <div class="row-action-simple-dialog-content">
+                <h4 class="row-action-simple-dialog-title"></h4>
+                <p class="row-action-simple-dialog-description">
+                </p>
+            </div>
+            <div class="row-action-simple-dialog-ctas">
+                <button type="button" class="secondary-button close-button">Cancel</button>
+                <button type="submit" class="primary-button">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-outer-box" style="height: 100%;">
+    <!-- TODO: Handle styling  -->
+    {% block table-top %} {% endblock %} 
+    <table id="zelthytable" class="stripe hover order-column" style="width: 100%">
+                 
+        <!-- <div class="cards-container">
+            <div class="card">
+                <span class="title">Marvin McKinney</span>
+                <div class="card-info-container">
+
+                    <div class="card-info">
+                        <div class="card-info-label">User ID:</div>
+                        <div class="card-info-value">5045</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-info-label">Date:</div>
+                        <div class="card-info-value">21 Sep, 2023</div>
+
+                    </div>
+                </div>
+                <div class="card-status"> Completed </div>
+            </div>
+        </div> -->
+    </table>
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+        <div class="drawer-handle-wrapper"><div class="drawer-handle"></div></div>
+        <!-- <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasBottomLabel">Details View</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div> -->
+        <div class="details-offcanvas-body">
+      
+
+          
+        </div>
+      </div>
+    {% block table-bottom %} {% endblock %}
+</div>
+
+<script>
+    let window_size = ""
+    $(document).ready(function () {
+
+        $(window).width() < 600 ? window_size = "mobile" : window_size = "desktop"
+        function ZToast(type, title, message, duration){
+            $.toast({
+            text : `<div class="z-toast-node ${{"error": "z-toast-error", "success": "z-toast-success", "warning": "z-toast-warning"}[type]}">
+                    <h3 class="title">
+                        ${title}
+                    </h3>
+                    <span class="message">
+                        ${message}
+                    </span>
+                </div>`,
+            hideAfter : duration,
+            });
+
+
+            $(document).find(".jq-toast-single").find(".close-jq-toast-single").html(`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="Icon/Navigation/16px/Close" clip-path="url(#clip0_1917_1245)">
+                <path id="Vector" d="M10.5041 0.879019L6.30147 5.08166C6.12945 5.25369 5.85655 5.25369 5.6991 5.08166L1.49588 0.879019C1.32386 0.706994 1.05096 0.706994 0.893507 0.879019C0.721482 1.05104 0.721482 1.32394 0.893507 1.48139L5.09673 5.68461C5.26875 5.85664 5.26875 6.12953 5.09673 6.28699L0.879019 10.5041C0.706994 10.6761 0.706994 10.949 0.879019 11.1065C1.05104 11.2785 1.32394 11.2785 1.48139 11.1065L5.68461 6.90327C5.85664 6.73125 6.12954 6.73125 6.28699 6.90327L10.5041 11.121C10.6761 11.293 10.949 11.293 11.1065 11.121C11.2785 10.949 11.2785 10.6761 11.1065 10.5186L6.91791 6.3009C6.74588 6.12887 6.74588 5.85598 6.91791 5.69853L11.1211 1.49531C11.2932 1.32328 11.2932 1.05038 11.1211 0.892933C10.9491 0.720908 10.6768 0.720908 10.5042 0.878924L10.5041 0.879019Z" fill="#6C747D" stroke="#6C747D" stroke-width="0.4"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_1917_1245">
+                <rect width="12" height="12" fill="white"/>
+                </clipPath>
+                </defs>
+                </svg>
+            `);
+        }
+     
+       
+
+        let csrfToken = $('input[name="csrfmiddlewaretoken"]').val();   
+        let table_metadata = {{table_metadata|safe}};
+        const config = {{frame_config|safe}};
+        const app_theme_config = {{app_theme_config|safe}};
+
+   
+        function mapDataForResponsiveDevice(responseData, tableMetadata) {
+            if (responseData.data.length === 0) return []
+            const columns = tableMetadata.columns;
+
+            const mappedData = responseData.data.map(dataItem => {
+                const mappedItem = {
+                    "title": dataItem["field_title"] ? dataItem["field_title"]  : "",
+                    "status_color": dataItem["workflow_status"] && dataItem["workflow_status"]["status_color"] ? dataItem["workflow_status"]["status_color"] : "", 
+                    "status_label": dataItem["workflow_status"] && dataItem["workflow_status"]["status_label"] ? dataItem["workflow_status"]["status_label"] : "" 
+
+                    
+                };
+
+                for (const column of columns) {
+                    const { name, display_name } = column;
+                    if (dataItem.hasOwnProperty(name) && display_name) {
+                        mappedItem[display_name] = dataItem[name];
+                    }
+                }
+                // Include primaryData if available
+                mappedItem.cardInfo = {}
+                for (const data of tableMetadata["card_primary_fields"]){
+                    if(dataItem.hasOwnProperty(data)){
+                        mappedItem.cardInfo[data] = dataItem[data]
+                    }
+                }
+                return mappedItem;
+            });
+            return mappedData;
+        }
+
+       
+        // Example usage
+
+        // let app_theme_config = {
+        //     "color": {
+        //         "primary": "#5048ED",
+        //         "secondary": "#E1D6AE",
+        //         "background": "#ffffff"
+        //     },
+        //     "button": {
+        //         "color": "#ffffff",
+        //         "background": "#5048ED",
+        //         "border_color": "#C7CED3",
+        //         "border_radius": "10"
+        //     },
+        //     "typography": {
+        //         "font_family": "Open Sans"
+        //     }
+        // }
+
+        // let config = {
+        //     "menu": [],
+        //     "config": {
+        //         "color": {
+        //             "accent": "#DDE2E5",
+        //             "header": "#FFFFFF",
+        //             "primary": "#5048ED",
+        //             "sidebar": "#E1D6AE",
+        //             "secondary": "#E1D6AE",
+        //             "background": "#FFFFFF",
+        //             "typography": "#212429",
+        //             "headerBorder": "#DDE2E5"
+        //         }
+        //     },
+        //     "profile": {
+        //         "name": "AnonymousUsers",
+        //         "roles": [],
+        //         "current_role": "AnonymousUsers"
+        //     },
+        //     "logo": null,
+        //     "fav_icon": null
+        // }
+
+        let newAppThemeConfig = {
+            "color": {
+                "accent": app_theme_config?.color?.primary || config?.config?.color?.primary || "#DDE2E5",
+                "header": "#FFFFFF",
+                "primary": app_theme_config?.color?.primary || config?.config?.color?.primary ||  "#DDE2E5",
+                "sidebar": app_theme_config?.color?.secondary || config?.config?.color?.secondary || "#E1D6AE",
+                "secondary": app_theme_config?.color?.secondary || config?.config?.color?.secondary || "#E1D6AE",
+                "background": app_theme_config?.color?.background || config?.config?.color?.background || "#FFFFFF",
+                "typography": "#212429",
+                "headerBorder": "#DDE2E5"
+            }
+        }
+
+        let newAppConfig = {...config, "config": newAppThemeConfig };
+
+        const root = document.querySelector(':root');
+        const setCssVariables = vars => Object.entries(vars).forEach(v => root.style.setProperty(v[0], v[1]));
+        const crudCssVariables = {
+            "--primary-color": tinycolor
+                        .mix(
+                          tinycolor(
+                            newAppConfig?.config?.color?.primary
+                          ).toHexString(),
+                          "#FFFFFF",
+                          9
+                        )
+                        .toHexString() || "#DDE2E5",
+            "--primary-light-color": tinycolor
+                  .mix(
+                    tinycolor(newAppConfig?.config?.color?.primary).toHexString(),
+                    "#FFFFFF",
+                    90
+                  )
+                  .toHexString(),
+            "--secondary-color": tinycolor(newAppConfig?.config?.color?.secondary).toHexString() || "#E1D6AE",
+            "--accent-color": tinycolor(newAppConfig?.config?.color?.accent).toHexString() || "#DDE2E5",
+            "--background-color": tinycolor(newAppConfig?.config?.color?.background).toHexString() || "#FFFFFF",
+            "--typography-color": tinycolor(newAppConfig?.config?.color?.typography).toHexString() || "#212429",
+            "--top-navbar-color": tinycolor(newAppConfig?.config?.color?.header).isLight() ? tinycolor(
+                newAppConfig?.config?.color?.typography
+                    ).toHexString() || "#212429"
+                : "#FFFFFF",
+            "--top-navbar-background-color": tinycolor(newAppConfig?.config?.color?.header).toHexString() || "#FFFFFF",
+            "--top-navbar-border-color": tinycolor(newAppConfig?.config?.color?.headerBorder).toHexString() || "#DDE2E5",
+            "--side-navbar-color": tinycolor(newAppConfig?.config?.color?.sidebar).isLight() ? tinycolor(newAppConfig?.config?.color?.typography).toHexString() || "#212429" : "#FFFFFF",
+            "--side-navbar-background-color": tinycolor(newAppConfig?.config?.color?.sidebar).toHexString() || "#E1D6AE",
+            "--side-navbar-hover-background-color": tinycolor(newAppConfig?.config?.color?.sidebar).isLight()
+                ? tinycolor
+                    .mix(
+                        tinycolor(
+                            newAppConfig?.config?.color?.sidebar
+                        ).toHexString(),
+                        "#000000",
+                        6
+                    )
+                    .toHexString() || "#E1D6AE"
+                : tinycolor
+                    .mix(
+                        tinycolor(
+                            newAppConfig?.config?.color?.sidebar
+                        ).toHexString(),
+                        "#FFFFFF",
+                        6
+                    )
+                    .toHexString() || "#FFFFFF",
+        };
+        setCssVariables(crudCssVariables);
+
+        let searchable = table_metadata?.columns
+            ?.filter((eachColumn) => eachColumn?.searchable && !(eachColumn?.type === "date") && !(eachColumn?.type === "datetime") && !(eachColumn?.type === "string" && eachColumn?.choices?.length))
+            .map((eachColumn) => eachColumn?.display_name);
+        let formattedColumns = table_metadata?.columns?.map((eachColumn) => {
+            return {
+                sTitle: eachColumn?.display_name || eachColumn?.name?.split('_').join(' '),
+                data: eachColumn?.name,
+                orderable: eachColumn?.sortable,
+                render: function ( data, type, row, meta ) {
+                    if(data && data.toString().indexOf("<") === -1 && data.toString().replace(/\s/g, "").length > 60){
+                        return `<div class="popper-box">
+                                    <div class="popper-label">
+                                        ${data}
+                                    </div>
+                                    <div class="popper-content">
+                                        ${data}
+                                    </div>
+                                </div>`
+                    } else {
+                        return `<div class="max-width">${data}</div>`
+                    }
+                }
+            };
+        });
+        let columns = table_metadata?.row_selector?.enabled
+            ? [
+                { sTitle: "", data: "", orderable: false },
+                ...formattedColumns,
+                { sTitle: "", data: "", orderable: false },
+            ]
+            : [...formattedColumns, { sTitle: "", data: "", orderable: false }];
+
+        function attachTableDrawEvents(){
+            $(document).find('.table-date-range-picker').each(function( index ) {
+                let colIdx = $(this).attr("data-colIdx");
+                let options = table_metadata?.columns[colIdx - 1]?.config || {};
+                let defaultValue = $(this).find(".date-range-label").text();
+                console.log("defaultValue", defaultValue, $(this).data('daterangepicker')?.startDate.format("YYYY-MM-DD"))
+                let start = defaultValue === 'Select' ? moment().subtract(29, 'days') : $(this).data('daterangepicker')?.startDate;
+                let end = defaultValue === 'Select' ? moment() : $(this).data('daterangepicker')?.endDate;
+
+                let cb = (start, end) => {
+                    console.log("start", "ed")
+                    let data = {"start": start.format("YYYY-MM-DD"), "end": end.format("YYYY-MM-DD")}
+                    if(options?.singleDatePicker){
+                        $(this).find(".date-range-label").html(start.format('DD MMM YY'));
+                    } else {   
+                        $(this).find(".date-range-label").html(start.format('DD MMM YY') + ' - ' + end.format('DD MMM YY'));
+                    }
+                    $(this).find(".date-range-label").removeClass("date-range-placeholder");
+                    zelthyTable.columns.adjust();
+                    zelthyTable.columns(colIdx).search(JSON.stringify(data)).draw()
+                }
+
+                $(this).daterangepicker({
+                    alwaysShowCalendars: true,
+                    startDate: start,
+                    endDate: end,
+                    showDropdowns: true,
+                    locale: { cancelLabel: 'Clear' },
+                    applyButtonClasses: "date-picker-apply-button",
+                    ...options,
+                });
+
+                $(this).on('apply.daterangepicker', function(ev, picker) {
+                    cb(picker.startDate, picker.endDate);
+                });
+
+                $(this).on('cancel.daterangepicker', function(ev, picker) {
+                    let data = {"start": "", "end": ""}
+                    $(this).find(".date-range-label").html('Select');
+                    $(this).find(".date-range-label").addClass("date-range-placeholder");
+                    zelthyTable.columns.adjust();
+                    zelthyTable.columns(colIdx).search(JSON.stringify(data)).draw()
+                });
+
+                // cb(start, end);
+            });
+
+            $(document).find(".table_select_all_row").removeClass("all_row_selected");
+
+            // <button type="button" class="each-detail-view-button" data-bs-toggle="modal" data-bs-target="#detailViewModal" data-direction='right' data-bs-backdrop="false" data-pk="${rowData.pk}">
+            //     View details
+            // </button>
+
+            $(document).find("td.table-extra-cell.each-cell").each(function(){
+                let rowData = $(this).data("row-data");
+                $(this).html(`<div class="each-row-action-box">
+                                <button type="button" class="each-detail-view-button"  data-pk="${rowData.pk}">
+                                    View details
+                                </button>
+                        </div>
+                        `)
+
+                if(rowData?.row_actions?.length){
+                    $(this).html(`<div class="each-row-action-box">
+                        <div class="each-row-action-dropdown-box flex gap-2">
+                             <button type="button" class="each-detail-view-button"  data-pk="${rowData.pk}">
+                                 View details
+                             </button>
+                            <button type="button" class="each-row-action-button">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g id="Frame 122">
+                                        <circle id="Ellipse 8" cx="10" cy="16" r="2" transform="rotate(-90 10 16)" fill="currentColor"/>
+                                        <circle id="Ellipse 9" cx="10" cy="10" r="2" transform="rotate(-90 10 10)" fill="currentColor"/>
+                                        <circle id="Ellipse 10" cx="10" cy="4" r="2" transform="rotate(-90 10 4)" fill="currentColor"/>
+                                    </g>
+                                </svg>
+                            </button>
+                            ${rowData?.row_actions?.length && `<ul class="each-row-action-dropdown">    
+                            ${rowData?.row_actions
+                                    ?.map((eachAction) => {
+                                        return `<li class="each-row-action-dropdown-list">
+                                            <button type="button" class="each-row-action-dropdown-option" data-key="${eachAction?.key}" data-type="${eachAction?.type}" data-option-data='${JSON.stringify(eachAction)}'>
+                                                ${eachAction?.name
+                                                        ? `<span class="label">${eachAction?.name}</span>`
+                                                        : ""
+                                                    }
+                                                ${eachAction?.description
+                                                        ? `<span class="description">${eachAction?.description}</span>`
+                                                        : ""
+                                                    }
+                                                
+                                            </button>    
+                                        </li>`;
+                                    })
+                                    .join("")}
+                            </ul>`}
+                        </div>
+                    </div>`)
+                }
+            });
+
+            // Detail View
+
+            // Current URL
+            const currentUrl = window.location.href;
+
+            // Create a URLSearchParams object from the current URL
+            const urlSearchParams = new URLSearchParams(window.location.search);
+
+
+            // fetch detailview data
+            async function fetchAndSetDetailView (pk) {
+                
+
+                // Add or update a query parameter
+                urlSearchParams.set('pk', pk);
+
+                // Create a new URL with the updated query parameters
+                const updatedUrl = `${currentUrl.split('?')[0]}?${urlSearchParams.toString()}`;
+
+                // Update the URL without reloading the page
+                window.history.pushState({ path: updatedUrl }, '', updatedUrl);
+
+                try { // update detail view url, type, payload here
+                    const response = await fetch(
+                        `./detail-view/?pk=${pk}`, 
+                        {
+                            method: "POST",
+                            headers: {
+                                'X-CSRFToken': "{{csrf_token|safe}}"
+                            },
+                            {% comment %} body: formData, {% endcomment %}
+                        }
+                    );
+                    const result = await response.json();
+                    if (result.success) {
+                        return result.response;
+                    } else {    
+                        if (result.response.message){
+                            alert(result.response.message);
+                        } else {
+                            alert("An error occurred.");
+                        };
+                    };
+                } catch (error) {
+                    return true; // update with actual error
+                    console.error("Error:", error);
+                };
+                    
+            };
+
+            // detail view handling
+         
+
+            // Get the value of a specific query parameter
+            function getQueryParamValue(param) {
+                const urlSearchParams = new URLSearchParams(window.location.search);
+                return urlSearchParams.get(param);
+            }
+
+            // Check if a specific query parameter exists
+            function doesQueryParamExist(param) {
+                const urlSearchParams = new URLSearchParams(window.location.search);
+                return urlSearchParams.has(param);
+            }
+
+            console.log("query params", doesQueryParamExist("pk"))
+            // if detail view is already opend before refreshing reopen detailview
+            if(doesQueryParamExist("pk")) { 
+
+                // Add or update a query parameter
+                urlSearchParams.set('pk', getQueryParamValue("pk"));
+                urlSearchParams.set('view', 'detail');
+                urlSearchParams.set('action', 'render');
+
+                // Create a new URL with the updated query parameters
+                const updatedUrl = `${currentUrl.split('?')[0]}?${urlSearchParams.toString()}`;
+
+                console.log("updated url here", updatedUrl)
+                // Update the URL without reloading the page
+                window.history.pushState({ path: updatedUrl }, '', updatedUrl);
+
+            };
+
+            $(document)
+                .find(".each-detail-view-button")
+                .on("click", function (event) {
+
+                    // Add or update a query parameter
+                    urlSearchParams.set('pk', $(this).attr("data-pk"));
+                    urlSearchParams.set('view', 'detail');
+                    urlSearchParams.set('action', 'render');
+
+                    // Create a new URL with the updated query parameters
+                    const updatedUrl = `${currentUrl.split('?')[0]}?${urlSearchParams.toString()}`;
+
+                    console.log("updated url here", updatedUrl)
+                    // Update the URL without reloading the page
+                    window.location.href = updatedUrl
+                    {% comment %} window.history.pushState({ path: updatedUrl }, '', updatedUrl); {% endcomment %}
+                    
+                    console.log("element", $(this).attr("data-pk"));
+            });
+                
+            $(document).on("mouseup", function (e) {
+                let container = $(".each-row-action-box");
+                if (
+                    !container.is(e.target) &&
+                    container.has(e.target).length === 0
+                ) {
+                    let is_visible = container.find(".each-row-action-dropdown").attr("data_is_visible");
+                    if (is_visible !== 'true') {
+                        container.find(".each-row-action-dropdown").attr("data-is-visible", false).hide();
+                    }
+                }
+            });
+
+            $(document)
+                .find(".each-row-action-dropdown-box")
+                .each(function (index) {
+                    let button = $(this).find(".each-row-action-button")[0];
+                    let tooltip = $(this).find(".each-row-action-dropdown")[0];
+
+                    let popperInstance = Popper.createPopper(button, tooltip, {
+                        strategy: "fixed",
+                        modifiers: [
+                            {
+                                name: "offset",
+                                options: {
+                                    offset: [10, 0],
+                                },
+                            },
+                        ],
+                    });
+                    popperInstance.setOptions({ placement: "bottom-end" });
+                    $(document).on("click", function (event) {
+                        if (popperInstance) {
+                            popperInstance?.update();
+                        }
+                    });
+
+                    let container = $('.dataTables_scrollBody');
+                    let elementToCheck = $(this).find(".each-row-action-button");
+                    
+                    let observer = new IntersectionObserver(entries => {
+                        let is_visible = $(this).find(".each-row-action-dropdown").attr("data-is-visible");
+                        let isIntersecting = entries[0].isIntersecting;
+
+                        if(is_visible && !isIntersecting){
+                            $(this).find(".each-row-action-dropdown").attr("data-is-visible", false).hide();
+                        }
+                    });
+
+                    observer.observe(elementToCheck[0]);
+                });
+
+            $(document)
+                .find("tr")
+                .on("mouseenter click", function () {
+                    $(".each-row-action-box").each(function (index) {
+                        let is_visible = $(this).find(".each-row-action-dropdown").attr("data-is-visible");
+                        if (is_visible !== "true") {
+                            $(this).hide();
+                        } else {
+                            $(this).show();
+                        }
+                    })
+
+                    $(this).find(".each-row-action-box").css({ display: "flex" });
+                });
+
+            $(document)
+                .find(".each-row-action-button")
+                .on("click", function (event) {
+                    event.preventDefault();
+                    $(".each-row-action-dropdown").attr("data-is-visible", false);
+                    $(".each-row-action-dropdown").hide();
+                    $(".each-row-action-dropdown").parents("tr").css("z-index", "0");
+                    $(this)
+                        .parents(".each-row-action-box")
+                        .find(".each-row-action-dropdown")
+                        .attr("data-is-visible", true)
+                        .show();
+                        $(this).parents("tr").css({"z-index": "1", "position": "relative"});
+                });
+
+            $(document)
+                .find(".popper-box")
+                .each(function (index) {
+                    let button = $(this).find(".popper-label")[0];
+                    let tooltip = $(this).find(".popper-content")[0];
+
+                    let popperInstance = Popper.createPopper(button, tooltip, {
+                        strategy: "fixed",
+                        modifiers: [
+                            {
+                                name: "offset",
+                                options: {
+                                    offset: [0, 10],
+                                },
+                            },
+                        ],
+                    });
+                    popperInstance.setOptions({ placement: "bottom-start" });
+                    $(document).on("mousemove", function (event) {
+                        if (popperInstance) {
+                            popperInstance?.update();
+                        }
+                    });
+                });
+
+            $(document)
+                .find(".popper-label")
+                .on("mouseenter focus", function (event) {
+                    event.preventDefault();
+                    $(".popper-content").hide();
+                    $(this)
+                        .parents(".popper-box")
+                        .find(".popper-content")
+                        .show();
+                });
+
+            $(document)
+                .find(".popper-label")
+                .on("mouseleave blur", function (event) {
+                    event.preventDefault();
+                    $(".popper-content").hide();
+                });
+
+            let editConfig = {
+                "form-type": "edit-patient",
+                "get-url":  `./?action=initialize_form`,
+                "post-url": `./?form_type=create_form`,
+            }
+            
+            
+            $(document)
+                .find(".each-row-action-dropdown-option")
+                .on("click", function (event) {
+                    let optionKey = $(this).attr("data-key");
+                    let optiontype = $(this).attr("data-type");
+                    let optionData = JSON.parse($(this).attr("data-option-data"));
+                    // let rowData = $(this).parents(".each-cell").data("row-data");
+                    let rowData = JSON.parse($(this).parents(".each-cell").attr("data-frow-data"));
+                    if(optiontype === 'simple'){
+                        $(document).find(".row-action-simple-dialog-overlay").css({"display":"flex"});
+                        $(document).find(".row-action-simple-dialog-title").html(optionData?.name);
+                        $(document).find(".row-action-simple-dialog-description").html(optionData?.confirmation_message);
+                        $(document).find(".row-action-simple-dialog-form").data({"rowData":rowData, "optionKey": optionKey, "optiontype": optiontype });
+                    }else{
+                        $(document).find("#row_actions_form_modal").css({"display":"flex"});
+                        
+                        $("#row_actions_form_modal #zelthy-dynamic-form").attr("data-config", JSON.stringify({
+                            "get_data":{
+                                "is_api_based":true,
+                                "url":`./?action_type=row&action_key=${optionKey}&pk=${rowData?.pk}&action=initialize_form`,
+                                "static_config":{},
+                            },
+                            "post_data":{
+                                "http_method":"POST",
+                                "url":`./?action_type=row&action_key=${optionKey}&pk=${rowData?.pk}&form_type=row_action_form`,
+                                "payload_type":"FORMDATA"
+                            }
+                        }));
+
+                    }
+                });
+            
+            $(document)
+                .find(".download-button")
+                .on("click", function (event) {
+                    event.preventDefault();
+                    $(".download-confirm-dialog").attr("data-is-visible", false);
+                    $(".download-confirm-dialog").hide();
+                    $(this)
+                        .parents(".table-static-action")
+                        .find(".download-confirm-dialog")
+                        .attr("data-is-visible", true)
+                        .show();
+                });
+
+            $(document).on("mouseup", function (e) {
+                let container = $(".table-static-action");
+                if (
+                    !container.is(e.target) &&
+                    container.has(e.target).length === 0
+                ) {
+                    let is_visible = container.find(".download-confirm-dialog").attr("data_is_visible");
+                    if (is_visible !== 'true') {
+                        container.find(".download-confirm-dialog").hide();
+                    }
+                }
+            });
+
+            $(document)
+                .find(".table-static-action")
+                .each(function (index) {
+                    let button = $(this).find(".download-button")[0];
+                    let tooltip = $(this).find(".download-confirm-dialog")[0];
+
+                    let popperInstance = Popper.createPopper(button, tooltip, {
+                        strategy: "fixed",
+                        modifiers: [
+                            {
+                                name: "offset",
+                                options: {
+                                    offset: [10, 10],
+                                },
+                            },
+                        ],
+                    });
+                    popperInstance.setOptions({ placement: "bottom-end" });
+                    $(document).on("click", function (event) {
+                        if (popperInstance) {
+                            popperInstance?.update();
+                        }
+                    });
+                });
+        }
+
+        let dataTableApiQueries = null;
+
+        let zelthyTable = $("#zelthytable").DataTable({
+            pagingType: "input",
+            fixedColumns: {
+                left: 0,
+                right: 1,
+            },
+            language: {
+                info: "Showing: _START_-_END_/_TOTAL_ entries",
+                lengthMenu:
+                    window_size === "desktop" ?'Counts per page <select class="custom-table-page-count">' +
+                    '<option value="10">10</option>' +
+                    '<option value="25">25</option>' +
+                    '<option value="50">50</option>' +
+                    '<option value="100">100</option>' +
+                    "</select>" : '',
+                paginate: {
+                    first: `<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.34362 0.919211C4.55213 0.708929 4.55213 0.367994 4.34362 0.157712C4.13512 -0.0525706 3.79708 -0.0525706 3.58858 0.157712L0.156375 3.61925C0.130313 3.64553 0.107508 3.67386 0.0879612 3.70372C-0.0488672 3.91272 -0.0260625 4.19675 0.156375 4.38075L3.58858 7.84229C3.79708 8.05257 4.13512 8.05257 4.34362 7.84229C4.55213 7.63201 4.55213 7.29107 4.34362 7.08079L1.28894 4L4.34362 0.919211Z" fill="#1C1E27"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.84362 0.919211C8.05213 0.708929 8.05213 0.367994 7.84362 0.157712C7.63512 -0.0525706 7.29708 -0.0525706 7.08858 0.157712L3.65638 3.61925C3.63031 3.64553 3.60751 3.67386 3.58796 3.70372C3.45113 3.91272 3.47394 4.19675 3.65638 4.38075L7.08858 7.84229C7.29708 8.05257 7.63512 8.05257 7.84362 7.84229C8.05213 7.63201 8.05213 7.29107 7.84362 7.08079L4.78894 4L7.84362 0.919211Z" fill="#1C1E27"/>
+                    </svg>
+                    `,
+                    last: `<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.65638 0.919211C3.44787 0.708929 3.44787 0.367994 3.65638 0.157712C3.86488 -0.0525706 4.20292 -0.0525706 4.41142 0.157712L7.84362 3.61925C7.86969 3.64553 7.89249 3.67386 7.91204 3.70372C8.04887 3.91272 8.02606 4.19675 7.84362 4.38075L4.41142 7.84229C4.20292 8.05257 3.86488 8.05257 3.65638 7.84229C3.44787 7.63201 3.44787 7.29107 3.65638 7.08079L6.71106 4L3.65638 0.919211Z" fill="#1C1E27"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.156375 0.919211C-0.0521251 0.708929 -0.0521251 0.367994 0.156375 0.157712C0.364875 -0.0525706 0.702921 -0.0525706 0.911421 0.157712L4.34362 3.61925C4.36969 3.64553 4.39249 3.67386 4.41204 3.70372C4.54887 3.91272 4.52606 4.19675 4.34362 4.38075L0.911421 7.84229C0.702921 8.05257 0.364875 8.05257 0.156375 7.84229C-0.0521251 7.63201 -0.0521251 7.29107 0.156375 7.08079L3.21106 4L0.156375 0.919211Z" fill="#1C1E27"/>
+                    </svg>
+                    `,
+                    next: `<svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.656375 0.919211C0.447875 0.708929 0.447875 0.367994 0.656375 0.157712C0.864875 -0.0525706 1.20292 -0.0525706 1.41142 0.157712L4.84362 3.61925C4.86969 3.64553 4.89249 3.67386 4.91204 3.70372C5.04887 3.91272 5.02606 4.19675 4.84362 4.38075L1.41142 7.84229C1.20292 8.05257 0.864875 8.05257 0.656375 7.84229C0.447875 7.63201 0.447875 7.29107 0.656375 7.08079L3.71106 4L0.656375 0.919211Z" fill="#1C1E27"/>
+                    </svg>`,
+                    previous: `<svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.34362 0.919211C4.55213 0.708929 4.55213 0.367994 4.34362 0.157712C4.13512 -0.0525706 3.79708 -0.0525706 3.58858 0.157712L0.156375 3.61925C0.130313 3.64553 0.107508 3.67386 0.0879612 3.70372C-0.0488672 3.91272 -0.0260625 4.19675 0.156375 4.38075L3.58858 7.84229C3.79708 8.05257 4.13512 8.05257 4.34362 7.84229C4.55213 7.63201 4.55213 7.29107 4.34362 7.08079L1.28894 4L4.34362 0.919211Z" fill="#1C1E27"/>
+                    </svg>`,
+                },
+                processing: `<span class="overlay-spinner"></span>`,
+            },
+            paging: true,
+            scrollX: true,
+            dom: '<"table-top" ><"table-search-box">rt<"table-bottom" <"table-info" i> <"table-pagination-box" l<"table-pagination-box-divider">p> >',
+            columns: columns,
+            columnDefs: [
+                {
+                    defaultContent: "",
+                    className: "each-cell",
+                    targets: "_all",
+                },
+                table_metadata?.row_selector?.enabled
+                    ? {
+                        className: "select-checkbox",
+                        targets: [0],
+                    }
+                    : {},
+                {
+                    className: "table-extra-cell",
+                    targets: [-1],
+                },
+            ],
+            select: table_metadata?.row_selector?.enabled
+                ? {
+                    style: "multi",
+                    selector: "td:first-child",
+                }
+                : false,
+            order: [],
+            processing: true,
+            serverSide: true,
+            ajax: function (data, callback) {
+                    function flattenObject(obj, parentKey = "") {
+                        let result = {};
+
+                        for (let key in obj) {
+                            if (obj.hasOwnProperty(key)) {
+                                let fullKey = parentKey ? `${parentKey}[${key}]` : key;
+                                if (typeof obj[key] === "object") {
+                                    Object.assign(result, flattenObject(obj[key], fullKey));
+                                } else {
+                                    result[fullKey] = obj[key];
+                                }
+                            }
+                        }
+
+                        return result;
+                    }
+                    const flattenedObject = flattenObject(data);
+
+                    dataTableApiQueries = flattenedObject;
+                    dataTableApiQueries["view"] = "table"
+                    dataTableApiQueries["action"] = "get_table_data"
+
+                    fetch(`./?${new URLSearchParams(flattenedObject)}`, {
+                        method: "GET",
+                        headers: {
+                            'X-CSRFToken': "{{csrf_token|safe}}"
+                        },
+                    })
+                        .then((response) => response.json())
+                        .then((responseData) => {
+                            
+                            const MOCK_RESPONSE_DATA = {
+                                                "draw": 1,
+                                                "recordsTotal": 27,
+                                                "recordsFiltered": 27,
+                                                "data": [
+                                                    {
+                                                        "id": 10034,
+                                                        "name": "test",
+                                                        "address": "sdjmk",
+                                                        "contact_person": "Test",
+                                                        "phone": "+918383838383",
+                                                        "email": "testn2122192jkm33@zel.com",
+                                                        "accounts_customer_id": "838012",
+                                                        "mobile": null,
+                                                        "test_col": 20034,
+                                                        "join_datetime": null,
+                                                        "pk": 34,
+                                                        "row_actions": [
+                                                            {
+                                                                "name": "Edit",
+                                                                "key": "edit",
+                                                                "description": "Edit Customer",
+                                                                "type": "form",
+                                                                "roles": [
+                                                                    "Product Owner"
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "field_title": "test",
+                                                        "workflow_status": {
+                                                            "name": "activate",
+                                                            "from": "inactive",
+                                                            "to": "active",
+                                                            "display_name": "Activate",
+                                                            "description": "Activate the Patient",
+                                                            "is_form_based": true,
+                                                            "status_label": "Active",
+                                                            "status_color": null
+                                                        }
+                                                    }
+                                                ]
+                                            } 
+                            // const testResult = mapData(responseData?.data , table_metadata?.columns);
+                         
+                           if(window_size === 'mobile'){
+                               const mappedCardData =  mapDataForResponsiveDevice(responseData, table_metadata)
+                               let cardContainer = $(".cards-container")
+                               cardContainer.empty()
+                           
+   
+                               mappedCardData.map((cardData, index)=>{
+                                   let cardInfo = cardData?.cardInfo
+                                   cardContainer.append(`
+                                            <div class="card" data-bs-toggle="offcanvas" data-cardindex="${index}" data-bs-target="#offcanvasBottom">
+                                              ${cardData?.title && ` <span class="title">${cardData?.title}</span>`}
+                                               <div class="card-info-container">
+                                                   ${Object.keys(cardInfo).length > 0 && Object.keys(cardInfo).map((key) => {
+                                                       return  `<div class="card-info">
+                                                                   <div class="card-info-label">${key}:</div>
+                                                                   <div class="card-info-value">${cardInfo[key]}</div>
+                                                               </div>`                                                    
+                                                           }).join('')}
+                                               </div>
+                                               ${cardData.status_label && `<div class="card-status" style="background-color:${cardData.status_color};"> ${cardData.status_label} </div>`}
+                                            </div>
+                                  
+                                       `)
+                               })
+                               if(mappedCardData.length >  0){
+                                   $('.card').on('click', function() {
+                                       let index = $(this).data('cardindex');
+                                       let cardData = mappedCardData[index];
+                                       handleCardClick(cardData);
+                                   });
+                               }
+                           }
+                           else{
+                            let mappedData = responseData?.data.map((eachData) =>
+                                table_metadata?.row_selector?.enabled
+                                    ? ["", ...Object.values({...eachData}), ""]
+                                    : [...Object.values(eachData), ""]
+                            );
+                           }
+
+                            let newData = {
+                                // data: responseData?.data?.map((eachData, index) => {
+                                //     if((index === 1)){
+                                //         return {...eachData, filter: {
+                                //                 type: "datepicker",
+                                //                 config: {
+                                //                     options: {
+                                //                         opens: 'left',
+                                //                         "singleDatePicker": true,
+                                //                     }
+                                //                 }
+                                //             }}
+                                //     }
+
+                                //     if((index === 2)){
+                                //         return {...eachData, filter: {
+                                //                 type: "datepicker",
+                                //                 config: {
+                                //                     options: {
+                                //                         "showDropdowns": true,
+                                //                         "showWeekNumbers": true,
+                                //                         "timePicker": true,
+                                //                         "timePicker24Hour": true,
+                                //                         "startDate": "11/16/2023",
+                                //                         "endDate": "11/22/2023"
+                                //                     }
+                                //                 }
+                                //             }}
+                                //     }
+
+                                //     if(index === 4) {
+                                //         return  {...eachData, filter: {
+                                //             type: "dropdown",
+                                //             config: {
+                                //                 options: [{id: "id", label: "label"}]
+                                //             }
+                                //         }}
+                                //     } else {
+                                //         return  {...eachData, filter: {
+                                //             type: "dropdown",
+                                //             config: {
+                                //                 options: [{id: "id", label: "label"}]
+                                //             }
+                                //         }}
+                                //     }
+                                // }),
+                                data: responseData?.data,
+                                draw: data?.draw,
+                                recordsFiltered: responseData?.recordsTotal,
+                                recordsTotal: responseData?.recordsTotal
+                            };
+
+                            return callback(newData);
+                        });
+                },
+            createdRow: function (row, data, dataIndex) {
+                $(row)
+                    .find("td")
+                    .each(function (index) {
+                        $(this).data("row-data", data);
+                        $(this).attr("data-frow-data", JSON.stringify(data));
+                    });
+            },
+            initComplete: function () {
+
+                let totalColumns = this.api().columns().count();
+                let columnFilter = `<tr>
+                        ${Array(totalColumns).fill(0).map((_, i) =>{
+                            return(`<th class="each-filter-cell" rowspan="1" colspan="1" aria-label=""></th>`)
+                        }).join("")}
+                    </tr>`
+                
+                let isColumnFilterAvailable = table_metadata.columns.reduce(
+                    (accumulator, currentValue) => (currentValue?.searchable && currentValue?.type === 'string' && currentValue?.choices?.length) || (currentValue?.searchable && currentValue?.type === 'datetime') || (currentValue?.searchable && currentValue?.type === 'date') ? true : false || accumulator, false,
+                );
+                
+                if(isColumnFilterAvailable){
+                   $(".dataTables_scrollHead table.stripe.hover.order-column.dataTable.no-footer thead").append(columnFilter);
+                }
+
+                let isRowSelectEnable = table_metadata?.row_selector?.enabled;
+                let filterIndex = isRowSelectEnable ? 1 : 0; 
+                this.api().columns().every(function (colIdx) {
+                    if (isRowSelectEnable ? colIdx !== 0 && colIdx !== (totalColumns - 1) : colIdx !== (totalColumns - 1)) {
+                        let column = this;
+
+                        if(table_metadata?.columns[colIdx - filterIndex]?.searchable && table_metadata?.columns[colIdx - filterIndex]?.type === "string" && table_metadata?.columns[colIdx - filterIndex]?.choices?.length){
+                            let select = $('<select><option value="">Select</option></select>')
+                                .appendTo($("thead tr:eq(1) .each-filter-cell").eq(colIdx).empty())
+                                .on('change', function () {
+                                        if ( column.search() !== $(this).val() ) {
+                                            column
+                                                .search( $(this).val() )
+                                                .draw();
+                                        }
+                                    });
+
+
+                            table_metadata?.columns[colIdx - filterIndex]?.choices?.map(({id, label}) => {
+                                select.append(`<option value="${id}">${label}</option>`);
+                            })
+                            
+                            select.select2({
+                                placeholder: "Select",
+                                width: 'resolve',
+                                dropdownAutoWidth : true,
+                                allowClear: true,
+                                // closeOnSelect: true
+                            })
+                        }
+
+                        if(table_metadata?.columns[colIdx - filterIndex]?.searchable && (table_metadata?.columns[colIdx - filterIndex]?.type === "date" || table_metadata?.columns[colIdx - filterIndex]?.type === "datetime")){
+                            let datepicker = $(`
+                                <div class="table-date-range-picker" data-colIdx=${colIdx}>
+                                    <span class="date-range-label date-range-placeholder">Select</span>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g id="Icon/Action/16px/Calendar">
+                                        <path id="Vector" d="M16.3187 2.709H14.8597V1.73606C14.8597 1.46762 14.6421 1.25 14.3737 1.25C14.1052 1.25 13.8876 1.46762 13.8876 1.73606V2.709H6.11065V1.73606C6.11065 1.46762 5.89304 1.25 5.6246 1.25C5.35615 1.25 5.13854 1.46762 5.13854 1.73606V2.709H3.68118C2.34128 2.709 1.25 3.79939 1.25 5.14018V16.3203C1.25 17.6602 2.34039 18.7515 3.68118 18.7515H16.3188C17.6587 18.7515 18.75 17.6611 18.75 16.3203L18.7492 7.56969V5.13852C18.7484 3.79862 17.6579 2.709 16.3187 2.709ZM17.7761 16.3187C17.7761 17.1223 17.1223 17.776 16.3187 17.776H3.68107C2.87584 17.776 2.22208 17.1223 2.22208 16.3187V7.56949H17.776L17.7761 16.3187ZM17.7761 6.59747H2.22218V5.13847C2.22218 4.33405 2.87592 3.67948 3.68118 3.67948H5.14017V3.6811H6.11068H13.8876V3.68271H14.8597V3.6811H16.3187C17.1224 3.6811 17.7761 4.33403 17.7761 5.13845L17.7761 6.59747Z" fill="#A3ABB1" stroke="#A3ABB1" stroke-width="0.2"/>
+                                        </g>
+                                    </svg>
+                                </div>`) 
+                                .appendTo($("thead tr:eq(1) .each-filter-cell").eq(colIdx).empty())
+                        }
+                    }
+                });
+
+                zelthyTable.columns.adjust().draw();
+                
+
+                $("th.select-checkbox.each-cell:first-child").html(
+                    `<button id="table_select_all_row" type="button" class="table_select_all_row"></button>`
+                );
+                $(".table_select_all_row").on("click", function () {
+                    if ($(this).hasClass("all_row_selected")) {
+                        $(this).removeClass("all_row_selected");
+                        zelthyTable.rows().deselect();
+                    } else {
+                        $(this).addClass("all_row_selected");
+                        zelthyTable.rows().select();
+                    }
+                });
+
+                zelthyTable.on("select deselect", function (e, dt, type, indexes) {
+                    if (type === "row") {
+                        let data = zelthyTable
+                            .rows({ selected: true })
+                            .data()
+                            .pluck("pk");
+                        let count = zelthyTable.rows({ selected: true }).count();
+                        if (count > 0) {
+                            $(".table-action").css({ display: "flex" });
+                        } else {
+                            $(".table-action").hide();
+                        }
+                    }
+                });
+                $(".table-search-box").html(`
+                    <div class="table-search-input-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <g clip-path="url(#clip0_2358_618)">
+                            <path d="M13.9647 13.0221C15.0263 11.7505 15.6646 10.1148 15.6646 8.33314C15.6646 4.28923 12.375 1 8.33388 1C4.28957 1 1 4.28923 1 8.33314C1 12.3762 4.28957 15.6663 8.33388 15.6663C10.1158 15.6663 11.7516 15.0265 13.0233 13.9666L17.8612 18.8039C17.9909 18.9336 18.1612 19 18.333 19C18.5033 19 18.6752 18.9344 18.8049 18.8039C19.065 18.5438 19.065 18.122 18.8049 17.8619L13.9647 13.0221ZM8.33388 14.3321C5.02631 14.3321 2.33431 11.6403 2.33431 8.3331C2.33431 5.02587 5.02631 2.33413 8.33388 2.33413C11.6414 2.33413 14.3335 5.02587 14.3335 8.3331C14.3335 11.6403 11.6414 14.3321 8.33388 14.3321Z" fill="black" stroke="black" stroke-width="0.2"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_2358_618">
+                            <rect width="20" height="20" fill="white"/>
+                            </clipPath>
+                            </defs>
+                        </svg>
+                   
+                        <input id='table_search' type="text" placeholder="${window_size === 'mobile'  ? 'Search': 'Search by ' +searchable.map(eachSeachable => eachSeachable.charAt(0).toUpperCase() + eachSeachable.slice(1)).join(
+                            ", "
+                        ) }"/>
+                    </div>
+                    {% if has_export_perm %}
+                        <div class="table-static-action">
+                            <button type="button" class="download-button">
+                                <span>Download</span>
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.408 12.9034C18.7349 12.9034 19 13.1658 19 13.4895V15.6002C19 17.4776 17.4623 19 15.566 19H4.43404C2.53774 19 1 17.4776 1 15.6002V13.4895C1 13.1658 1.26509 12.9034 1.59204 12.9034C1.91899 12.9034 2.18408 13.1658 2.18408 13.4895V15.6002C2.18408 16.8302 3.19166 17.8278 4.43408 17.8278H15.566C16.8084 17.8278 17.816 16.8302 17.816 15.6002V13.4895C17.816 13.1658 18.081 12.9034 18.408 12.9034ZM9.99998 2.00008C10.3136 2.00008 10.5709 2.24164 10.5906 2.54723L10.592 2.58621V12.2574L13.1485 9.89548C13.3771 9.68386 13.73 9.68664 13.9557 9.89409L13.9853 9.92402C14.199 10.1503 14.1962 10.4997 13.9867 10.7232L13.9564 10.7524L10.4077 14.0317C10.3965 14.0422 10.3859 14.0512 10.3747 14.061C10.3712 14.0631 10.3684 14.0658 10.3656 14.0679C10.3585 14.0735 10.3508 14.0791 10.3438 14.0839C10.3388 14.0874 10.3339 14.0909 10.3283 14.0944C10.3234 14.0979 10.3184 14.1013 10.3128 14.1041C10.3079 14.1076 10.303 14.1104 10.2973 14.1139C10.2896 14.1181 10.2819 14.1222 10.2734 14.1264L10.2643 14.1313C10.2573 14.1348 10.2495 14.1382 10.2425 14.1417C10.2369 14.1438 10.232 14.1459 10.227 14.148C10.22 14.1508 10.2137 14.1536 10.2073 14.1563L10.1898 14.1619C10.1848 14.164 10.1799 14.1654 10.1743 14.1668C10.1673 14.1689 10.1602 14.171 10.1525 14.173C10.1335 14.1786 10.1131 14.1828 10.0934 14.1856C10.0885 14.1863 10.0829 14.187 10.078 14.1877L10.0386 14.1918L9.99993 14.1925C9.9697 14.1925 9.93946 14.1904 9.90923 14.1863L9.88181 14.1814C9.7004 14.2176 9.50492 14.1696 9.35939 14.0352L5.80655 10.7523C5.56749 10.5316 5.55484 10.1606 5.77772 9.92395C6.00062 9.68727 6.37538 9.67474 6.61443 9.89541L9.40803 12.4765V2.58614C9.40803 2.26244 9.67303 2.00008 9.99998 2.00008Z" fill="black" stroke="black" stroke-width="0.3"/>
+                                </svg>
+                            </button>
+                            <div class="download-confirm-dialog">
+                                <div class="download-confirm-dialog-outer">
+                                    <div class="download-confirm-dialog-messages">
+                                        <p>
+                                            The report will be available in <strong>‘My Downloads’</strong> in <strong>30 min</strong>.
+                                        </p>
+                                        <p>
+                                            Confirm if you want to proceed with download?
+                                        </p>
+                                    </div> 
+                                    <button type="button" class="download-confirm-dialog-button">
+                                        Download
+                                    </button>   
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="table-action">
+                        ${table_metadata?.actions?.table
+                        ?.map(({ name, key, icon }) => {
+                            return `<button type="button" class="each-table-action-button" data-key="${key}">
+                                            ${name
+                                    ? `<span>${name}</span>`
+                                    : ""
+                                } 
+                                            ${icon
+                                    ? `<img src="${icon}" alt="${name} icon"/>`
+                                    : ""
+                                }
+                                        </button>`;
+                        })
+                        .join("")}
+                    </div>
+                `);
+
+                $(document).find(".download-confirm-dialog-button").on("click", function(){
+                    delete dataTableApiQueries['draw'];
+                    dataTableApiQueries['action'] = "export_table";
+                    
+                    fetch(`./?${new URLSearchParams(dataTableApiQueries)}`, {
+                        method: "GET",
+                        headers: {
+                            'X-CSRFToken': "{{csrf_token|safe}}"
+                        },
+                    })
+                        .then((response) => response.json())
+                        .then((responseData) => {
+                            if(responseData?.success){
+                                ZToast("success", "Download Confirmation", responseData?.message, 3000);
+                            } else {
+                                ZToast("error", "Error", responseData?.message, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            ZToast("error", "Server Error", responseData?.message, 3000);
+                            throw(error);
+                        });
+
+                });
+
+                $(document)
+                    .find(".each-table-action-button")
+                    .on("click", function () {
+                        let buttonKey = $(this).attr("data-key");
+                        let data = zelthyTable
+                            .rows({ selected: true })
+                            .data()
+                            .pluck("pk");
+                        let count = zelthyTable.rows({ selected: true }).count();
+                        let allSelectedIds = Array(count)
+                            .fill(0)
+                            .map((_, i) => data[i]);
+                    });
+
+                function debounce(func, timeout = 300) {
+                        let timer;
+                        return (...args) => {
+                            clearTimeout(timer);
+                            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                        };
+                    }
+
+                function searchInTable(value) {                        
+                    zelthyTable.search(value).draw()
+                }
+                const searchFieldChange = debounce((value) => searchInTable(value), 500);
+
+                $(document)
+                    .find("#table_search")
+                    .on("change keyup paste", function () {
+                        let searchValue = $(this).val();
+                        searchFieldChange(searchValue);
+                    });
+
+                new $.fn.dataTable.FixedHeader(zelthyTable, {
+                    headerOffset: $(".table-search-box").outerHeight(),
+                    header: true,
+                    footer: false,
+                });
+
+                function resizePaginationInputWidth() {
+                    let value = $(document).find(".paginate_input").val();
+                    if (value) {
+                        $(document)
+                            .find(".paginate_input")
+                            .css({ width: `${value.length + 5}ch` });
+                    }
+                }
+
+                resizePaginationInputWidth();
+
+                $(document)
+                    .find(".paginate_input")
+                    .on("change keypress", function () {
+                        resizePaginationInputWidth();
+                    });
+                
+                $(".row-action-simple-dialog-form").on("submit", function(){
+                    event.preventDefault();
+
+                    let rowData = $(this).data("rowData");
+                    let optionKey = $(this).data("optionKey");
+                    
+                    let formData = new FormData();
+                    formData.append("pk", rowData?.pk);
+
+                    async function simpleRowAction(formData) {
+                        try {
+                            const response = await fetch(`./?action_type=row&action_key=${optionKey}`, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRFToken': "{{csrf_token|safe}}"
+                            },
+                            body: formData,
+                            });
+                            const result = await response.json();
+                            if (result.success) {
+                                $(this).data("optionKey", "");
+                                $(".row-action-simple-dialog-overlay").css({"display":"none"});
+                                zelthyTable.draw();
+                            } else {    
+                                if (result.response.message){
+                                    alert(result.response.message);
+                                } else {
+                                    alert("An error occurred.");
+                                }
+                                $(".row-action-simple-dialog-overlay").css({"display":"none"});
+                                zelthyTable.draw();
+                            }
+                        } catch (error) {
+                            console.error("Error:", error);
+                            $(".row-action-simple-dialog-overlay").css({"display":"none"});
+                            zelthyTable.draw();
+                        }
+                    }
+
+                    simpleRowAction(formData);
+                });
+
+                $(".row-action-simple-dialog-form").find(".close-button").on("click", function(){
+                    $(this).data("optionKey", "");
+                    $(".row-action-simple-dialog-overlay").css({"display":"none"});
+                });
+            
+                attachTableDrawEvents();
+            },
+        });
+
+        zelthyTable.on( 'draw.dt', function () {
+            attachTableDrawEvents();
+        } );
+    });
+</script>
+
+<script>
+    let addConfig = {
+        "form-type": "add-patient",
+        "get-url":  `./?action=initialize_form`,
+        "post-url": `./?form_type=create_form`,
+    }
+    function handleCardClick(data) {
+        const ignore_meta_details = ["cardInfo", "title", "status_label", "status_color"];
+        $(".details-offcanvas-body").html(`
+       ${data.title && `<h5 class="detail-title">${data?.title}</h5>`}
+    
+        ${data.status_label && `<span class="detail-status" style="background-color:${data.status_color};">${data.status_label}</span>`}
+        ${Object.keys(data).map((detail_key,index)=>{
+            if(!ignore_meta_details.includes(detail_key) && data[detail_key]){
+            return `
+            <div class="general-details">
+                <div class="detail-label">${detail_key}</div>
+                <div class="detail-value">${data[detail_key]}</div>
+            </div>
+        `}
+        }).join('')}
+
+        `);
+    }
+$(document).ready(function() {
+    var inputElements = document.getElementsByName('csrfmiddlewaretoken');
+    let csrf_token = inputElements[0].value;
+    let tableCardContainer= $(".dataTables_scroll")
+    tableCardContainer.append(` <div class="cards-container">`)
+    $(document).find(".page-add-button").on("click", function(){
+        $("#page_add_modal #zelthy-dynamic-form").attr("data-config", JSON.stringify({
+            "get_data":{
+                "is_api_based":true,
+                "url":"./?action=initialize_form",
+                "static_config":{},
+            },
+            "post_data":{
+                "http_method":"POST",
+                "url":"./?form_type=create_form",
+                "payload_type":"FORMDATA"
+            }
+        }));
+
+        let modalId = $(this).data("modal");
+        if($(`#${modalId}`).is(":hidden")){
+            $(`#${modalId}`).css({"display":"flex"});
+        } else {
+            $(`#${modalId}`).css({"display":"none"});
+        }
+    });
+
+    $(document).find(".modal-close").on("click", function(){
+        let modalId = $(this).data("modal");
+        $(`#${modalId}`).css({"display":"none"});
+        if(modalId === "row_actions_form_modal"){
+            location.reload();
+        }
+    })
+
+    $(document).find('#objectcreateform').find("select").select2({
+        placeholder: "Select"
+    });
+
+    $("#objectcreateform").submit(function(event) {
+        // Prevent the form from submitting the traditional way
+        event.preventDefault();
+        $(document).find(".overlay-spinner").show();
+        $(this).find("button[type='submit']").attr("disabled", true);
+        // Get the form data
+        let formData = new FormData($(this)[0]);
+
+        // Submit the form via AJAX
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'), // Use the form's action attribute as the AJAX endpoint
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    alert(response.msg); // Optional: Show a success message
+                    location.reload();  // Reload the page
+                } else {
+                    alert("An error occurred.");
+                }
+                $(document).find(".overlay-spinner").hide();
+                $(this).find("button[type='submit']").attr("disabled", false);
+        
+            },
+            error: function() {
+                alert("Failed to submit the form.");
+                $(document).find(".overlay-spinner").hide();
+                $(this).find("button[type='submit']").attr("disabled", false);
+            }
+        });
+    });
+});
+</script>
+
+<script>
+    var csrf_token = "{{ csrf_token }}";
+</script>
+<script src="{% zstatic 'packages/crud/build.v1.0.21.min.js' %}"></script>
+
+<!-- TODO: Handle -->
+{% block custom_js %} {% endblock %}
+
+
+{% endblock %}
+
+

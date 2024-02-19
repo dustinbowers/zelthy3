@@ -1,0 +1,92 @@
+{% extends 'crud/detail.html' %}
+{% load zstatic %}
+
+{% block after_general_details_content %}
+    <style>
+       
+        #appointment-table th:nth-child(2){
+            width:20%;
+        }
+        #appointment-table{
+            table-layout: auto;
+            border-collapse:collapse;
+            width: 100% !important;
+            border-spacing: 0 !important;
+            margin-bottom: 150px;
+            /* border-top: 1px solid #C7CED3; */
+            border-bottom: 1px solid #C7CED3;
+        }
+        #appointment-table td:first-child, #appointment-table th:first-child{
+            padding-right:40px !important;
+        }
+        #appointment-table th{
+            padding:12px ;
+            /* border-bottom:4px solid #F0F3F4 !important; */
+            text-align:start !important; 
+            font-size: 14px;
+            white-space: nowrap;
+            color:#6C747D;
+            background-color:#F0F3F4;
+            /* border-right: 1px solid #F0F3F4;  */
+        }
+        #appointment-table td{
+            color: #212429;
+            text-align: left;
+            padding:12px ;
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px; 
+            letter-spacing: 0.2px;
+            /* border-bottom: 1px solid #F0F3F4; */
+            white-space: nowrap;
+            /* border-right: 1px solid #F0F3F4;  */
+            border-bottom: 1px solid #C7CED3 !important;
+
+        }
+        h3{
+            color: #6C747D;
+            font-size: 12px;
+            font-family: Lato;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 20px;
+            letter-spacing: 0.60px;
+            word-wrap: break-word;
+            margin-bottom: 8px;
+            margin-top: 48px;
+
+        }
+    </style>
+    <h3>Appointment Details</h3>
+    <table id="appointment-table">
+        <thead>
+            <tr>
+            <th>Appointment ID</th>
+            <!-- <th>Name</th> -->
+            <!-- <th>Details</th> -->
+            <!-- <th>Nurse Educator</th> -->
+            <th>Start Time</th>
+            <!-- <th style="word-wrap: break-word !important;">Duration (Mins)</th> -->
+            <th>Type</th>
+            <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in appointments_data %}
+            <tr>
+                <td>{{ item.get_id }}</td>
+                <!-- <td>{{ item.title }}</td> -->
+                <!-- <td>{{ item.description }}</td> -->
+                <!-- <td>{{ item.hosts }}</td> -->
+                <!-- <td>laskdjjflkasjdlkfjalsdj</td> -->
+                <td>{{ item.start_time }}</td>
+                <!-- <td >{{ item.duration }}</td> -->
+                <td>{{ item.appointment_type }}</td>
+                <td>{{ item.app_status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %} 

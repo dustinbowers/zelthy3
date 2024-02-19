@@ -1,3 +1,8 @@
+import phonenumbers
+
+from django.conf import settings
+
+
 class BaseField:
     def __init__(self, field, declared_field):
         self.field = field
@@ -39,6 +44,14 @@ class BaseJSONSchemaField(BaseField):
             self.ui_schema["ui:placeholder"] = self.declared_field.properties.get(
                 "placeholder"
             )
+
+        self.ui_schema["ui:syncEnabled"] = self.declared_field.properties.get(
+            "sync_enabled", False
+        )
+
+        self.ui_schema["ui:autocomplete"] = self.declared_field.properties.get(
+            "autocomplete", {}
+        )
 
         if self.declared_field.properties.get("required_msg"):
             error_messages["required"] = self.declared_field.properties.get(
@@ -91,13 +104,17 @@ class EmailJSONSchemaField(BaseStringField):
 class MobileJSONSchemaField(BaseStringField):
     def to_json_schema(self, initial=None):
         self.field_schema = super(MobileJSONSchemaField, self).to_json_schema(initial)
-        # TODO: Handle for default
         if self.field_schema.get("default"):
-            self.field_schema["default"] = ""
+            self.field_schema["default"] = str(
+                self.field_schema["default"].national_number
+            )
 
-        self.field_schema[
-            "countryCode"
-        ] = "+91"  # TODO: Fetch using settings PHONENUMBER_DEFAULT_REGION
+        # Get country code from region
+        country_code = phonenumbers.country_code_for_region(
+            settings.PHONENUMBER_DEFAULT_REGION
+        )
+
+        self.field_schema["countryCode"] = f"+{country_code}"
         return self.field_schema
 
     def to_ui_schema(self):
@@ -157,16 +174,17 @@ class ChoiceJSONSchemaField(BaseJSONSchemaField):
     def to_json_schema(self, initial=None):
         super(ChoiceJSONSchemaField, self).to_json_schema(initial)
         self.field_schema["type"] = "string"
-        self.field_schema["enum"] = [
-            str(choice[0]) for choice in self.field.choices if str(choice[0])
-        ]
-        self.field_schema["enumNames"] = [
-            str(choice[1]) for choice in self.field.choices if str(choice[0])
-        ]
-        if self.declared_field.properties.get("placeholder"):
-            self.field_schema["description"] = self.declared_field.properties.get(
-                "placeholder"
-            )
+
+        if not self.declared_field.properties.get("autocomplete", {}).get(
+            "enabled", False
+        ):
+            self.field_schema["enum"] = [
+                str(choice[0]) for choice in self.field.choices if str(choice[0])
+            ]
+            self.field_schema["enumNames"] = [
+                str(choice[1]) for choice in self.field.choices if str(choice[0])
+            ]
+
         if self.field_schema.get("default"):
             if not isinstance(self.field_schema["default"], list):
                 self.field_schema["default"] = str(self.field_schema["default"])
@@ -178,7 +196,10 @@ class ChoiceJSONSchemaField(BaseJSONSchemaField):
 
     def to_ui_schema(self):
         super(ChoiceJSONSchemaField, self).to_ui_schema()
-        self.ui_schema["ui:widget"] = "SelectFieldWidget"
+        if self.ui_schema.get("ui:autocomplete", {}).get("enabled", False):
+            self.ui_schema["ui:widget"] = "AsyncSelectFieldWidget"
+        else:
+            self.ui_schema["ui:widget"] = "SelectFieldWidget"
         return self.ui_schema
 
 
@@ -217,11 +238,25 @@ class DateJSONSchemaField(BaseJSONSchemaField):
     def to_json_schema(self, initial=None):
         self.field_schema = super().to_json_schema(initial)
         self.field_schema["type"] = "string"
+        self.field_schema["default"] = (
+            str(self.field_schema["default"])
+            if self.field_schema.get("default")
+            else None
+        )
         return self.field_schema
 
     def to_ui_schema(self):
+        from zelthy.core.utils import get_current_request
+
+        request = get_current_request()
+
         self.ui_schema = super(DateJSONSchemaField, self).to_ui_schema()
         self.ui_schema["ui:widget"] = "DatePickerFieldWidget"
+        self.ui_schema["ui:options"] = {
+            "dateFormat": request.tenant.date_format
+            if request.tenant.date_format
+            else "%d %b %Y"
+        }
         # TODO: Handle range
         # "ui:options": {
         #     "yearsRange": [
@@ -236,11 +271,24 @@ class DateTimeJSONSchemaField(BaseJSONSchemaField):
     def to_json_schema(self, initial=None):
         self.field_schema = super().to_json_schema(initial)
         self.field_schema["type"] = "string"
+        self.field_schema["default"] = (
+            str(self.field_schema["default"])
+            if self.field_schema.get("default")
+            else None
+        )
         return self.field_schema
 
     def to_ui_schema(self):
+        from zelthy.core.utils import get_current_request
+
+        request = get_current_request()
         self.ui_schema = super(DateTimeJSONSchemaField, self).to_ui_schema()
-        self.ui_schema["ui:widget"] = "date-time"
+        self.ui_schema["ui:widget"] = "DateTimePickerFieldWidget"  # "date-time"
+        self.ui_schema["ui:options"] = {
+            "datetimeFormat": request.tenant.datetime_format
+            if request.tenant.datetime_format
+            else "%d %B %Y %I:%M %p"
+        }
         # TODO: Handle range
         # "ui:options": {
         #     "yearsRange": [

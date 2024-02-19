@@ -1,0 +1,20 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "base",
+            "path": "base"
+        }
+    ],
+    "app_routes": [
+        {
+            "re_path": "^qna/",
+            "module": "base",
+            "url": "urls"
+        }
+    ],
+    "package_routes": [],
+    "dependencies":[]    
+}
+
+

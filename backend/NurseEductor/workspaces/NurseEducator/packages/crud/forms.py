@@ -1,26 +1,8 @@
 import copy
-from typing import Any
 
 from django import forms
 from django.forms.models import ModelFormMetaclass
 
-from phonenumber_field.formfields import PhoneNumberField
-
-
-from .fields import (
-    CharJSONSchemaField,
-    EmailJSONSchemaField,
-    ChoiceJSONSchemaField,
-    IntegerJSONSchemaField,
-    TextJSONSchemaField,
-    DateJSONSchemaField,
-    DateTimeJSONSchemaField,
-    FileJSONSchemaField,
-    BooleanJSONSchemaField,
-    NumberJSONSchemaField,
-    MobileJSONSchemaField,
-    MultipleChoiceJSONSchemaField,
-)
 
 from .form_fields import ModelField
 
@@ -67,7 +49,7 @@ class BaseForm(forms.ModelForm, FormsMixin, metaclass=CustomModelFormMetaclass):
         if hasattr(self.Meta, "unique_together"):
             unique_together = getattr(self.Meta, "unique_together")
 
-        order = getattr(self.Meta, "order", [])
+        order = getattr(self.Meta, "order", None)
 
         super(BaseForm, self).__init__(*args, **kwargs)
         self._meta.unique_together = unique_together
@@ -140,6 +122,7 @@ class BaseSimpleForm(forms.Form, FormsMixin):
         self.declared_fields = {}
         self.form_fields = {}
         self.custom_schema_fields = {}
+        self.crud_view_instance = kwargs.pop("crud_view_instance", None)
 
         # Walk through the MRO to get attributes from both parent and child classes
         form_class_attrs = {}

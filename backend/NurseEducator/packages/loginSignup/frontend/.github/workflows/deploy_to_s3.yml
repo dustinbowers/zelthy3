@@ -1,0 +1,15 @@
+name: ci-cd-workflow
+on:
+ push:
+   branches:
+     - development
+     - staging
+     - main
+     
+jobs:
+ my-job:
+   uses: Healthlane-Technologies/zelthy-ci-cd-workflows/.github/workflows/deploy_react_build_to_s3.yml@v3
+   with:
+     static-bucket: zelthystatichosting
+     AWS_REGION: ap-south-1
+   secrets: inherit

@@ -1,11 +1,12 @@
 import pytz
 
 from ...packages.crud.base import BaseCrudView
+from ...packages.crud.form_fields import ModelField
 from ...packages.communication.sms.utils import SMS
 from ...packages.communication.email.utils import Email
-from ...packages.communication.videocall.utils import VideoCallManager
 from ...packages.frame.decorator import add_frame_context
 from ...packages.workflow.base.models import WorkflowTransaction
+from ...packages.communication.videocall.utils import VideoCallManager
 
 from zelthy.apps.object_store.models import ObjectStore
 from zelthy.core.utils import get_current_request, get_current_role, get_app_object
@@ -15,6 +16,7 @@ from .forms import AppointmentFormBase
 from .workflow import AppointmentBaseWorkflow
 from .models import AbstractAppointmentModel
 
+from django import forms
 from django.db.models import Q
 from django.db.models.functions import TruncDate
 from django.db.models import F, Subquery, OuterRef, Max, Case, When, Value, CharField
@@ -29,9 +31,11 @@ class AppointmentBaseView(BaseCrudView):
     form = AppointmentFormBase
     participants = [] # list of model names
     hosts = [] # list of model names
-    address_type = "open" # open, lat-long, select
+    address_type = "lat-long" # open, lat-long, select
     title = ""
     workflow = AppointmentBaseWorkflow
+    notes_key = ""
+    participant_single_select = True
 
     # either email or sms for all standardize
 
@@ -125,24 +129,24 @@ class AppointmentBaseView(BaseCrudView):
                 },
                 "scheduled": {
                     "sms": {
-                        "body": "Your appointment for {program} is confirmed on {start_time}. Localtion: Address here For assistance, please email at {program_email} or call {program_number}."
+                        "body": "Your appointment for {program} is confirmed on {start_time}. Localtion: {location} For assistance, please email at {program_email} or call {program_number}."
                     },
                     "email": {
                         "subject": "Appointment Scheduled",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: Address here</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: {location}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 },
                 "updated": {
                     "sms": {
-                        "body": "Your appointment for {program} has been rescheduled to {start_time}. Localtion: Address here For assistance, please email at {program_email} or call {program_number}."
+                        "body": "Your appointment for {program} has been rescheduled to {start_time}. Localtion: {location} For assistance, please email at {program_email} or call {program_number}."
                     },
                     "email": {
                         "subject": "Appointment Updated",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>Please be informed that your video call appointment is rescheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: Address here</p><p>If you have any further questions or concerns regarding this change, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>Please be informed that your video call appointment is rescheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: {location}</p><p>If you have any further questions or concerns regarding this change, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 }
             },
-            "telephonic": {
+            "audio": {
                 "completed": {
                     "sms": {
                         "body": "Thanks for attending the appointment",
@@ -176,7 +180,7 @@ class AppointmentBaseView(BaseCrudView):
                     },
                     "email": {
                         "subject": "Appointment Scheduled",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your audio call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 },
                 "updated": {
@@ -185,7 +189,7 @@ class AppointmentBaseView(BaseCrudView):
                     },
                     "email": {
                         "subject": "Appointment Updated",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>Please be informed that your video call appointment is rescheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any further questions or concerns regarding this change, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>Please be informed that your audio call appointment is rescheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any further questions or concerns regarding this change, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 }
             }
@@ -201,22 +205,22 @@ class AppointmentBaseView(BaseCrudView):
                         "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>Joining Link: <a href='{video_call_link}' target='_blank'>Link</a></p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 },
-                "telephonic": {
+                "audio": {
                     "sms": {
                         "body": "Your appointment for {program} is confirmed on {start_time}. For assistance, please email at {program_email} or call {program_number}."
                     },
                     "email": {
                         "subject": "Appointment Scheduled",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your audio call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 },
                 "f2f": {
                     "sms": {
-                        "body": "Your appointment for {program} is confirmed on {start_time} Localtion: Address here. For assistance, please email at {program_email} or call {program_number}."
+                        "body": "Your appointment for {program} is confirmed on {start_time} Localtion: {location}. For assistance, please email at {program_email} or call {program_number}."
                     },
                     "email": {
                         "subject": "Appointment Scheduled",
-                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your video call appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: Address here</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
+                        "body": "<p>Dear {name},</p><p>Greetings from {program}!</p><p>We are pleased to inform you that your appointment is scheduled for:</p><p>Date & Time: {start_time}</p><p>Localtion: {location}</p><p>If you have any queries, please feel free to reach out to us at {program_email} or call {program_number}.</p><p>{email_signature}</p>"
                     }
                 }
             }
@@ -353,7 +357,7 @@ class AppointmentBaseView(BaseCrudView):
         for reminder in self.reminders:
             appointments = appointments.filter(updated_state="Scheduled").exclude(reminders__has_key=str(reminder))
             for appointment in appointments:
-                tz_ist = pytz.timezone('Asia/Kolkata')  # 'Asia/Kolkata' is the timezone for IST
+                tz_ist = pytz.timezone('UTC')  # 'Asia/Kolkata' is the timezone for IST
 
                 # Create an aware datetime object for the current time in IST
                 aware_dt_ist = datetime.now(tz_ist)
@@ -366,7 +370,6 @@ class AppointmentBaseView(BaseCrudView):
                     reminder_dict = {
                         str(reminder): True
                     }
-                    print('here4')
                     initial_reminder_dict.update(reminder_dict)
                     appointment.reminders = initial_reminder_dict
                     appointment.save()
@@ -399,12 +402,6 @@ class AppointmentBaseView(BaseCrudView):
                 })
 
         return result
-
-
-    def get_form(self, data=None, instance=None):
-        form = super(AppointmentBaseView, self).get_form(data=data, instance=instance)
-        form.request = self.request
-        return form
 
 
     def get_phone_numbers(self):
@@ -455,6 +452,7 @@ class AppointmentBaseView(BaseCrudView):
             host_values = host_values + object_values
 
         return host_values
+
 
     def get_trigger_params(self, instance):
 
@@ -536,6 +534,7 @@ class AppointmentBaseView(BaseCrudView):
                 result.update({
                     'sms': 'switched_off'
                 }) 
+
 
     def post_create(self, instance, form_data={}):
 
@@ -632,4 +631,61 @@ class AppointmentBaseView(BaseCrudView):
 
         return True
      
+
+    def get_appointment_type_on_change(self, data, fields):
+        print(data, 'Abcd')
+        traditional_fields = {}
+        model_fields = {}
+        to_update = False
+
+        address_type_mapper = {
+            'open': {
+                'traditional': forms.CharField(),
+                'model': ModelField(
+                    label="Address", 
+                    placeholder="Enter Address", 
+                    required=True, 
+                    required_msg="Please enter address"
+                )
+            },
+            'lat-long': {
+                'traditional': forms.CharField(),
+                'model': ModelField(
+                    label="Latitude & Longitude", 
+                    placeholder="Enter Latitude & Longitude (e.g. xx.xxxx,xx.xxxx)", 
+                    required=True, 
+                    required_msg="Please enter Latitude & Longitude",
+                    pattern="^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$",
+                    pattern_msg="Invalid Latitude & Longitude. Please follow the format xx.xxxx,xx.xxxx"
+
+                )
+            },
+            'select': {
+                'traditional': forms.ChoiceField(choices=self.get_address_values()),
+                'model': ModelField(
+                    label="Address", 
+                    placeholder="Select Address", 
+                    required=True,
+                    required_msg="Please select address"
+                )
+            }
+        }
+
+        if data.get('appointment_type') == 'f2f':
+            traditional_fields['location'] = address_type_mapper[self.address_type]['traditional']
+            model_fields['location'] = address_type_mapper[self.address_type]['model']
+            to_update = True
+        elif data.get('appointment_type') == 'audio':
+            traditional_fields['mobile'] = forms.ChoiceField(
+                choices = self.get_phone_numbers()
+            )
+            model_fields['mobile'] = ModelField(
+                label="Contact Number", 
+                placeholder="Select Contact Number", 
+                required=True,
+                required_msg="Please select Contact Number"
+            )
+            to_update = True
+
+        return traditional_fields, model_fields, to_update
 

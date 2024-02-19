@@ -1,0 +1,880 @@
+{% load zstatic %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Communication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Source+Sans+3:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+</head>
+
+<body>
+    <style>
+        :root {
+            --primary-color: #5048ED;
+        }
+
+        html {
+            overflow: auto;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+        }
+
+        .intro-section {
+            padding: 64px 96px 0px 96px;
+        }
+
+        .intro-detail-section {
+            padding: 0px 96px 0px 96px;
+        }
+
+        .side-section-padding {
+            padding: 0px 96px 0px 96px;
+        }
+
+        .sub-title-padding {
+            padding: 96px 48px 0px 96px;
+        }
+
+        .packages-table {
+            border-collapse: separate;
+            border-spacing: 0px 8px;
+        }
+
+        .package-title {
+            color: #000;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 22px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 28px;
+            letter-spacing: -0.2px;
+            margin: 0px;
+        }
+
+        .package-status {
+            color: #0F3F30;
+            font-size: 11px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 16px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            border-radius: 13px;
+            border: 1px solid #A1E9D3;
+            padding: 5px 12px;
+            width: fit-content;
+            background: #E4F9F2
+        }
+
+        .view-docs-anchor-label {
+            font-family: 'Lato', sans-serif;
+            color: #212429 !important;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+            padding: 4px 0px;
+            border-bottom: 1px solid #000;
+        }
+
+        .view-docs-anchor {
+            text-decoration: none;
+        }
+
+        .packages-table .each-cell {
+            padding-right: 48px;
+        }
+
+        .each-cell-last {
+            width: 100%;
+        }
+
+        .packages-headline {
+            color: #A3ABB1;
+            font-size: 11px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 16px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin: 0px;
+        }
+
+        .each-cell-label {
+            color: #212429;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-cell-install-status {
+            color: #6C747D;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-cell-install-status-active {
+            color: #5048ED;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-cell-toggle {
+            color: #6C747D;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-header {
+            border-bottom: 4px solid #F0F3F4;
+            padding: 20px 0px;
+            color: var(--neutral-mid-mid-500, #6C747D);
+            font-size: 11px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 16px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .package-tabs .nav-tabs .nav-link {
+            border: 0px;
+        }
+
+        .nav-tabs {
+            border-top: 1px solid #DDE2E5;
+            border-bottom: 1px solid #DDE2E5;
+        }
+
+        .package-tabs .nav-link {
+            color: #495057;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+            padding: 12px;
+        }
+
+        .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {
+            font-weight: 700;
+            background-color: transparent;
+        }
+
+        .nav-tabs .nav-link:disabled {
+            opacity: 0.23;
+        }
+
+        .nav-link-first {
+            padding: 12px 12px 12px 32px !important;
+        }
+
+        .each-tab-title {
+            font-family: 'Source Sans 3', sans-serif;
+            color: #212429;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 24px;
+            letter-spacing: -0.2px;
+        }
+
+        .each-tab-primary-button {
+            display: flex;
+            color: #FFF;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 20px;
+            letter-spacing: 0.2px;
+            gap: 8px;
+            border-radius: 4px;
+            background: #5048ED;
+            padding: 7px 16px;
+            border: 0px;
+        }
+
+        .each-package-table {
+            width: 100%;
+        }
+
+        .each-package-table .each-cell {
+            border-bottom: 1px solid #F0F3F4;
+            padding: 14px 48px 14px 14px;
+            color: var(--neutral-dark-dark-700, #212429);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-package-table .each-header {
+            padding: 14px 48px 14px 14px;
+        }
+
+        .each-package-table .each-cell-status {
+            border-radius: 15px;
+            padding: 3px 8px;
+            color: #1C1E27;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-package-table .each-cell-status-active {
+            background: #E4F9F2;
+        }
+
+        .each-package-table .each-cell-status-inactive {
+            background: #FBE0DD;
+        }
+
+        .each-package-table .action-button {
+            color: #5048ED;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 20px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            background-color: transparent;
+            border: 0px;
+            width: max-content;
+        }
+
+        .each-package-table .default-row {
+            color: #495057;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 20px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            background-color: transparent;
+            border: 0px;
+            width: max-content;
+        }
+
+        .each-package-table .first-cell {
+            padding: 14px 48px 14px 96px;
+        }
+
+        .package-tabs .tab-pane .show {
+            display: flex;
+            flex-direction: column;
+            gap: 24px
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-end;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(126deg, rgba(0, 0, 0, 0.67) 0%, rgba(0, 0, 0, 0.77) 100%);
+            z-index: 126;
+        }
+
+        .modal-content {
+            display: flex;
+            width: 498px;
+            background-color: #FFFFFF;
+            padding: 0px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            border: 0px;
+            background: transparent;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .modal-title {
+            color: #000;
+            font-family: Lato;
+            font-size: 22px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 28px;
+            letter-spacing: -0.2px;
+            margin: 0px;
+        }
+
+        .modal-content-form {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 40px;
+        }
+
+        .modal-content-form-body {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 16px;
+            max-height: calc(100vh - 116px);
+            justify-content: space-between
+        }
+
+        .modal-form-submit-button {
+            position: sticky;
+            bottom: 32px;
+            border: 0px;
+            padding: 12px;
+            border-radius: 4px;
+            background: var(--primary-color);
+            color: #FFF;
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 20px;
+            letter-spacing: 0.2px;
+        }
+
+        .each-row-action-box {
+            display: none;
+            align-items: center;
+            /* justify-content: end; */
+            /* background: linear-gradient(270deg,
+            #f5f7f8 50.84%,
+            rgba(245, 247, 248, 0) 100%); */
+        }
+
+        .each-row-action-dropdown-box {
+            position: absolute;
+        }
+
+        .each-row-action-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 0px;
+            color: var(--primary-color);
+            background-color: transparent;
+            cursor: pointer;
+            width: fit-content;
+            position: relative;
+            /* right: 24px;
+    top: 50%; */
+            z-index: 2;
+        }
+
+        .each-row-action-dropdown {
+            display: none;
+            position: fixed;
+            width: 195px;
+            right: 220px;
+            border-radius: 4px;
+            padding: 4px;
+            background: var(--neutral-light-white, #fff);
+            z-index: 125;
+            box-shadow: 0px 4px 24px 0px rgba(0, 0, 0, 0.16);
+        }
+
+        .each-row-action-dropdown-list {
+            list-style: none;
+        }
+
+        .each-row-action-dropdown-option {
+            display: flex;
+            flex-direction: column;
+            border: 0px;
+            background-color: transparent;
+            cursor: pointer;
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 2px;
+        }
+
+        .each-row-action-dropdown-option .label {
+            color: var(--neutral-dark-dark-700, #212429);
+            font-family: Lato;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: left;
+            letter-spacing: 0.2px;
+        }
+
+        .each-row-action-dropdown-option .description {
+            color: var(--neutral-mid-mid-500, #6c747d);
+            font-family: Lato;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0.2px;
+            text-align: left;
+        }
+
+        .each-row-action-dropdown-option:focus,
+        .each-row-action-dropdown-option:active,
+        .each-row-action-dropdown-option:hover {
+            background-color: #f0f3f4;
+        }
+
+        .switch {
+            position: relative;
+            display: flex;
+            width: 26px;
+            height: 16px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-label {
+            padding: 0px 0px 0px 34px;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #fff;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border: 1px solid #6C747D;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 8px;
+            width: 8px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #495057;
+            -webkit-transition: .4s;
+            transition: .4s;
+            box-shadow: 0px 0px 2px 0px #00000040;
+        }
+
+        input:checked+.slider {
+            background-color: #495057;
+            border: 1px solid #495057;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(10px);
+            -ms-transform: translateX(10px);
+            transform: translateX(10px);
+            background-color: #fff;
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
+            color: #888;
+        }
+    </style>
+    <div class="overlay-spinner" style="display: none;"></div>
+    <main class="package-main d-flex flex-column" style="gap: 32px;">
+        <section class="d-flex flex-column" style="gap: 24px;">
+            <div class="package-tabs d-flex flex-column" style="gap: 24px;">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane show active fade" id="email" role="tabpanel" aria-labelledby="email-tab">
+                        <div class="d-flex justify-content-between align-items-start sub-title-padding">
+                            <!-- <h4 class="each-tab-title">Email</h4> -->
+                            <div class="d-flex flex-column" style="gap: 4px;">
+                                <h2 class="package-title">
+                                    Infobip
+                                </h2>
+                                <span class="package-status">Installed</span>
+                            </div>
+                            <button type="button" class="each-tab-primary-button new-smtp-imap-button form-modal-button"
+                                data-modal="package-dynamic-form-modal">
+                                <span class="each-tab-primary-label">
+                                    New Config
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
+                                    fill="none">
+                                    <path
+                                        d="M12.3077 15.5656C13.1721 15.5656 14.0008 15.2225 14.6116 14.6116C15.2225 14.0008 15.5656 13.1721 15.5656 12.3077V3.25792C15.5656 2.39355 15.2225 1.56482 14.6116 0.953971C14.0008 0.343124 13.1721 0 12.3077 0H3.25792C1.45895 0 0 1.45895 0 3.25792V12.3077C0 13.1721 0.343098 14.0008 0.953971 14.6116C1.56484 15.2225 2.39355 15.5656 3.25792 15.5656H12.3077ZM20 3.25792V14.2986C20 15.8105 19.3993 17.2613 18.3303 18.3304C17.2613 19.3995 15.8105 20 14.2986 20H3.25787C2.80786 20 2.44339 19.6356 2.44339 19.1856C2.44339 18.7356 2.80786 18.3711 3.25787 18.3711H14.2986C15.3788 18.3711 16.4142 17.9425 17.1778 17.1779C17.9424 16.4143 18.371 15.3789 18.371 14.2987V3.25794C18.371 2.80793 18.7355 2.44346 19.1855 2.44346C19.6355 2.44346 20 2.80791 20 3.25792ZM3.71041 7.7828C3.71041 7.7828 4.07488 6.96833 4.52489 6.96833C4.9749 6.96833 6.96833 6.96833 6.96833 6.96833V4.52489C6.96833 4.07488 7.3328 3.71041 7.78281 3.71041C8.23282 3.71041 8.59729 4.07488 8.59729 4.52489V6.96833H11.0407C11.4907 6.96833 11.8552 7.33279 11.8552 7.7828C11.8552 8.23281 11.4907 8.59729 11.0407 8.59729H8.59729V11.0407C8.59729 11.4907 8.23282 11.8552 7.78281 11.8552C7.3328 11.8552 6.96833 11.4907 6.96833 11.0407V8.59729C6.96833 8.59729 4.9749 8.59729 4.52489 8.59729C4.07488 8.59729 3.71041 7.7828 3.71041 7.7828Z"
+                                        fill="white" />
+                                </svg>
+                            </button>
+                        </div>
+                        <table class="each-package-table"></table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div id="package-dynamic-form-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <button type="button" data-modal="package-dynamic-form-modal" class="modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <g clip-path="url(#clip0_5158_6104)">
+                            <path
+                                d="M17.7213 1.22117L10.5168 8.42571C10.2219 8.72061 9.75409 8.72061 9.48417 8.42571L2.27865 1.22117C1.98375 0.926275 1.51593 0.926275 1.24601 1.22117C0.951112 1.51607 0.951112 1.9839 1.24601 2.25382L8.45153 9.45933C8.74643 9.75423 8.74643 10.2221 8.45153 10.492L1.22117 17.7213C0.926275 18.0162 0.926275 18.4841 1.22117 18.754C1.51607 19.0489 1.9839 19.0489 2.25382 18.754L9.45933 11.5485C9.75423 11.2536 10.2221 11.2536 10.492 11.5485L17.7213 18.7788C18.0162 19.0737 18.4841 19.0737 18.754 18.7788C19.0489 18.4839 19.0489 18.0161 18.754 17.7462L11.5736 10.5158C11.2787 10.2209 11.2787 9.7531 11.5736 9.48319L18.7791 2.27767C19.074 1.98277 19.074 1.51494 18.7791 1.24503C18.4842 0.950129 18.0173 0.950129 17.7214 1.22101L17.7213 1.22117Z"
+                                fill="black" stroke="black" stroke-width="0.4" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_5158_6104">
+                                <rect width="20" height="20" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </button>
+                <div id="zelthy-dynamic-form" class="zelthy-dynamic-form"></div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+        crossorigin="anonymous"></script>
+    <script>
+        const querystring = window.location.search;
+        const urlParams = new URLSearchParams(querystring);
+        const token = urlParams.get('token');
+        $(document).ready(function () {
+            $(document).find(".new-smtp-imap-button").attr("data-z-form-config", JSON.stringify({
+                "get_data":{
+                    "is_api_based":true,
+                    "url":`/infobip/configure/api/?action=initialize_form&token=${token}`,
+                    "static_config":{}
+                },
+                "post_data":{
+                    "http_method":"POST",
+                    "url":`/infobip/configure/api/?action=create_config&token=${token}`,
+                    "payload_type":"FORMDATA"
+                    }
+                })
+            );
+            fetch(`/infobip/configure/api/?action=fetch_configs&token=${token}`)
+                .then(response => response.json())
+                .then(({ success, response }) => {
+                    if (success) {
+                        let emailRows = response?.map(eachData => {
+                            return `<tr>
+                                <td class="first-cell each-cell">${eachData?.key}</td>
+                                <td class="each-cell">${eachData?.provider}</td>
+                                <td class="each-cell">
+                                    ${eachData?.is_active ? `<span
+                                        class="each-cell-status each-cell-status-active">
+                                        Active
+                                    </span>` : `<span
+                                        class="each-cell-status each-cell-status-inactive">
+                                        Inactive
+                                    </span>`}
+                                    
+                                </td>
+                                <td class="each-cell each-cell-last">
+                                </td>
+                                <td class="each-cell each-cell-last">
+                                    <div class="each-row-action-box">
+                                        <div class="each-row-action-dropdown-box">
+                                            <button type="button" class="each-row-action-button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 20 20" fill="none">
+                                                    <circle cx="10" cy="16" r="2" transform="rotate(-90 10 16)"
+                                                        fill="#6C747D" />
+                                                    <circle cx="10" cy="10" r="2" transform="rotate(-90 10 10)"
+                                                        fill="#6C747D" />
+                                                    <circle cx="10" cy="4" r="2" transform="rotate(-90 10 4)"
+                                                        fill="#6C747D" />
+                                                </svg>
+                                            </button>
+                                            <ul class="each-row-action-dropdown">
+                                                <li class="each-row-action-dropdown-list">
+                                                    <button type="button"
+                                                        class="each-row-action-dropdown-option form-modal-button"
+                                                        data-modal="package-dynamic-form-modal" data-key="" data-type=""
+                                                        data-option-data='' data-z-form-config='{
+                                                            "get_data":{
+                                                                "is_api_based":false,
+                                                                "url":"",
+                                                                "static_config":{
+                                                                    "form":{
+                                                                        "json_schema":{
+                                                                        "title":"Update Key",
+                                                                        "type":"object",
+                                                                        "properties":{
+                                                                            "key":{
+                                                                                "type":"string",
+                                                                                "title":"Update Key",
+                                                                                "default":"${eachData?.key}"
+                                                                            },
+                                                                            "active":{
+                                                                                "type":"boolean",
+                                                                                "title":"Is Active",
+                                                                                "default":${eachData?.is_active}
+                                                                            },
+                                                                            "type":{
+                                                                                "type":"string",
+                                                                                "title":"sms",
+                                                                                "default":"sms"
+                                                                            }
+                                                                        },
+                                                                        "required":[
+                                                                            "key"
+                                                                        ]
+                                                                        },
+                                                                        "ui_schema":{
+                                                                        "key":{
+                                                                            "ui:widget":"TextFieldWidget",
+                                                                            "ui:errorMessages":{
+                                                                                "required":"This field is required."
+                                                                            }
+                                                                        },
+                                                                        "active":{
+                                                                            "ui:widget":"CheckboxFieldWidget"
+                                                                        },
+                                                                        "type":{
+                                                                            "ui:widget":"hidden"
+                                                                        }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "post_data":{
+                                                                "http_method":"POST",
+                                                                "url":"/communication/configure/api/?action=update_key&pk=${eachData?.pk}&token=${token}",
+                                                                "payload_type":"FORMDATA"
+                                                            }
+                                                            }'>
+                                                        <span class="label">Update</span>
+                                                        <span class="description">update key, active/iactive, make
+                                                            default</span>
+                                                    </button>
+                                                </li>
+                                                <li class="each-row-action-dropdown-list">
+                                                    <button type="button"
+                                                        class="each-row-action-dropdown-option form-modal-button"
+                                                        data-modal="package-dynamic-form-modal" data-key="" data-type=""
+                                                        data-option-data='' data-z-form-config='{
+                                                            "get_data":{
+                                                               "is_api_based":true,
+                                                               "url":"/infobip/configure/api/?action=get_config&pk=${eachData?.pk}&token=${token}",
+                                                               "static_config":{}
+                                                            },
+                                                            "post_data":{
+                                                               "http_method":"PUT",
+                                                               "url":"/infobip/configure/api/?action=update_config&pk=${eachData?.pk}&token=${token}",
+                                                               "payload_type":"FORMDATA"
+                                                            }
+                                                         }'>
+                                                        <span class="label">Edit Config</span>
+                                                        <span class="description"></span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>`
+                        }).join("");
+
+                        if (emailRows?.length) {
+                            $(document).find(".tab-content").find("#email").find(".each-package-table").html(`<tr>
+                                <th class="first-cell each-header">Key</th>
+                                <th class="each-header">Sms Service</th>
+                                <th class="each-header" style="width: 100%;">Status</th>
+                                <th class="each-header"></th>
+                                <th class="each-header"></th>
+                                </tr>`);
+
+                            $(document).find(".tab-content").find("#email").find(".each-package-table").append(emailRows);
+                        } else {
+                            $(document).find(".tab-content").find("#email").find(".each-package-table").html(`
+                                <div class="empty-state" id="emptyState">
+                                    No data available.
+                                </div>`
+                            );
+                        }
+
+                        $(document).find(".form-modal-button").on("click", function () {
+                            let modalId = $(this).data("modal");
+                            let zFormConfig = $(this).data("z-form-config");
+                            $(`#${modalId}`).find(".zelthy-dynamic-form").attr("data-config", JSON.stringify(zFormConfig));
+                            if ($(`#${modalId}`).is(":hidden")) {
+                                $(`#${modalId}`).css({ "display": "flex" });
+                            } else {
+                                $(`#${modalId}`).css({ "display": "none" });
+                            }
+                        });
+
+                        $(document).find(".modal-close").on("click", function () {
+                            let modalId = $(this).data("modal");
+                            $(`#${modalId}`).find(".zelthy-dynamic-form").attr("data-config", {});
+                            $(`#${modalId}`).css({ "display": "none" });
+                            if (modalId === "row_actions_form_modal") {
+                                location.reload();
+                            }
+                        });
+
+                        $(document).on("mouseup", function (e) {
+                            let container = $(".each-row-action-box");
+                            if (
+                                !container.is(e.target) &&
+                                container.has(e.target).length === 0
+                            ) {
+                                let is_visible = container.find(".each-row-action-dropdown").attr("data_is_visible");
+                                if (is_visible !== 'true') {
+                                    container.find(".each-row-action-dropdown").hide();
+                                }
+                            }
+                        });
+
+                        $(document)
+                            .find(".each-row-action-dropdown-box")
+                            .each(function (index) {
+                                let button = $(this).find(".each-row-action-button")[0];
+                                let tooltip = $(this).find(".each-row-action-dropdown")[0];
+
+                                let popperInstance = Popper.createPopper(button, tooltip, {
+                                    strategy: "fixed",
+                                    modifiers: [
+                                        {
+                                            name: "offset",
+                                            options: {
+                                                offset: [10, 0],
+                                            },
+                                        },
+                                    ],
+                                });
+                                popperInstance.setOptions({ placement: "bottom-end" });
+                                $(document).on("click", function (event) {
+                                    if (popperInstance) {
+                                        popperInstance?.update();
+                                    }
+                                });
+                            });
+
+                        $(document)
+                            .find("tr")
+                            .on("mouseenter click", function () {
+                                $(".each-row-action-box").each(function (index) {
+                                    let is_visible = $(this).find(".each-row-action-dropdown").attr("data-is-visible");
+                                    if (is_visible !== "true") {
+                                        $(this).hide();
+                                    } else {
+                                        $(this).show();
+                                    }
+                                })
+
+                                $(this).find(".each-row-action-box").css({ display: "flex" });
+                            });
+
+                        $(document)
+                            .find(".each-row-action-button")
+                            .on("click", function (event) {
+                                event.preventDefault();
+                                $(".each-row-action-dropdown").attr("data-is-visible", false);
+                                $(".each-row-action-dropdown").hide();
+                                $(this)
+                                    .parents(".each-row-action-box")
+                                    .find(".each-row-action-dropdown")
+                                    .attr("data-is-visible", true)
+                                    .show();
+                            });
+
+                        $(document).find(".make-default-button").on("click", function () {
+                            let eachRowData = JSON.parse($(this).attr("data-each-row"));
+                            let type = $(this).attr("data-type");
+                            let url = `/communication/configure/api/?action=make_default&pk=${eachRowData?.pk}&token=${token}`;
+                            let formData = new FormData();
+                            formData.append("provider", eachRowData?.provider);
+                            formData.append("type", type);
+                            fetch(url, {
+                                method: "POST",
+                                body: formData,
+                            })
+                                .then((response) => {
+                                    console.log("response,", response)
+                                    if (response.ok) {
+                                        return response.json();
+                                    }
+                                    return Promise.reject(response);
+                                })
+                                .then(({ success, response }) => {
+                                    if (success) {
+                                        window.location.reload();
+                                    }
+                                })
+                                .catch((response) => {
+                                    console.log(response.status, response.statusText);
+                                    response.json().then((json) => {
+                                        console.log(json);
+                                    })
+                                });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error(error)
+                });
+
+
+        });
+
+    </script>
+    <script>
+        var csrf_token = "{{ csrf_token }}";
+    </script>
+    <script src="{% zstatic 'packages/communication/build.v1.0.10.min.js' %}"></script>
+    <script>
+        console.log("ZelthyRJSF", ZelthyRJSF)
+    </script>
+</body>
+
+</html>

@@ -53,7 +53,7 @@
 
 {% block page_content %}
 <style> 
- 
+
         .cards-container{
             display: none;
         }
@@ -127,9 +127,29 @@
             line-height: 20px; 
             letter-spacing: 0.2px;
         }
+        th.each-cell{
+            padding: 12px 24px 16px 24px !important;
+            min-width: fit-content;
+            white-space: nowrap;
+        }
+        table.dataTable thead > tr > th.sorting:after, table.dataTable thead > tr > th.sorting:before{
+            display: none !important;
+        } 
+        .asc_desc_sort_wrapper{
+            display: flex;
+            flex-direction: column;
+            gap:2px;
+            position: absolute;
+            right:0;
+            top:13px;
+            white-space: nowrap;
+        }
     @media (max-width:640px)  {
         .dataTables_scroll{
             height: 100%;
+        }
+        .download-button{
+            display: none !important;
         }
         .cards-container{
             display: flex;
@@ -220,7 +240,7 @@
 
 <div class="page-title-bar">
     <div>
-        <h2 class="page-title">{{page_title}}</h2>
+        <h2 class="page-title"></h2>
     </div>
     {% if has_add_perm %}
         <div>     
@@ -250,7 +270,7 @@
                 </defs>
             </svg>
         </button>
-        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form"></div>
+        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form" style="height: 100%"></div>
         {% comment %} <form id="objectcreateform" action="" method="post"  enctype="multipart/form-data" class="modal-content-form">
             
             <div class="modal-content-form-body complete-hidden-scroll-style">
@@ -276,7 +296,7 @@
                 </defs>
             </svg>
         </button>
-        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form"></div>
+        <div id="zelthy-dynamic-form" class="zelthy-dynamic-form" style="height: 100%"></div>
         {% comment %} <form id="objectcreateform" action="" method="post"  enctype="multipart/form-data" class="modal-content-form" style="gap: 0;">
             <h3 class="modal-title" style="padding-top: 32px; padding-left: 32px;">
                 Row Action Form
@@ -350,7 +370,8 @@
 <script>
     let window_size = ""
     $(document).ready(function () {
-
+        let pageTitle = "{{page_title}}"
+        $(".page-title").html(pageTitle);
         $(window).width() < 600 ? window_size = "mobile" : window_size = "desktop"
         function ZToast(type, title, message, duration){
             $.toast({
@@ -530,8 +551,8 @@
         setCssVariables(crudCssVariables);
 
         let searchable = table_metadata?.columns
-            ?.filter((eachColumn) => eachColumn?.searchable && !(eachColumn?.type === "date") && !(eachColumn?.type === "string" && eachColumn?.choices?.length))
-            .map((eachColumn) => eachColumn?.name?.split('_').join(' '));
+            ?.filter((eachColumn) => eachColumn?.searchable && !(eachColumn?.type === "date") && !(eachColumn?.type === "datetime") && !(eachColumn?.type === "string" && eachColumn?.choices?.length))
+            .map((eachColumn) => eachColumn?.display_name);
         let formattedColumns = table_metadata?.columns?.map((eachColumn) => {
             return {
                 sTitle: eachColumn?.display_name || eachColumn?.name?.split('_').join(' '),
@@ -548,7 +569,7 @@
                                     </div>
                                 </div>`
                     } else {
-                        return `<div>${data}</div>`
+                        return `<div class="max-width">${data}</div>`
                     }
                 }
             };
@@ -588,7 +609,7 @@
                     startDate: start,
                     endDate: end,
                     showDropdowns: true,
-                    locale: { cancelLabel: 'Clear' },
+                    locale: { format: 'DD MMM YY', cancelLabel: 'Clear' },
                     applyButtonClasses: "date-picker-apply-button",
                     ...options,
                 });
@@ -610,23 +631,31 @@
 
             $(document).find(".table_select_all_row").removeClass("all_row_selected");
 
-            // <button type="button" class="each-detail-view-button" data-bs-toggle="modal" data-bs-target="#detailViewModal" data-direction='right' data-bs-backdrop="false" data-pk="${rowData.pk}">
-            //     View details
-            // </button>
-
+           // view detail and row action buttons handling
             $(document).find("td.table-extra-cell.each-cell").each(function(){
                 let rowData = $(this).data("row-data");
+                // view detail button if row actions are not available
                 $(this).html(`<div class="each-row-action-box">
+                    
                                 <button type="button" class="each-detail-view-button"  data-pk="${rowData.pk}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="12" viewBox="0 0 18 12" fill="none">
+                                        <path d="M8.99989 9.60004C7.97658 9.60004 6.99508 9.22053 6.27158 8.54553C5.54812 7.87053 5.14136 6.95476 5.14136 5.99997C5.14136 5.04519 5.54812 4.12945 6.27158 3.45441C6.99504 2.77941 7.97656 2.3999 8.99989 2.3999C10.0232 2.3999 11.0047 2.77941 11.7282 3.45441C12.4517 4.12941 12.8584 5.04519 12.8584 5.99997C12.8584 6.95476 12.4517 7.87049 11.7282 8.54553C11.0047 9.22053 10.0232 9.60004 8.99989 9.60004ZM8.99989 3.59999C7.95971 3.59999 7.02161 4.185 6.62368 5.08124C6.22497 5.97826 6.44522 7.01105 7.18074 7.69727C7.91626 8.38352 9.02317 8.58902 9.98458 8.21701C10.9452 7.84576 11.5722 6.9705 11.5722 5.99997C11.5722 5.36322 11.3013 4.75271 10.819 4.30272C10.3366 3.85272 9.68232 3.59995 8.99985 3.59995L8.99989 3.59999Z" fill="currentColor"/>
+                                        <path d="M9 12C4.20908 12 0.273413 6.56405 0.106109 6.33C-0.0353696 6.12975 -0.0353696 5.87026 0.106109 5.67C0.27331 5.43599 4.20908 0 9 0C13.7909 0 17.7266 5.43595 17.8939 5.67C18.0354 5.87026 18.0354 6.12975 17.8939 6.33C17.7267 6.56402 13.7909 12 9 12ZM1.68095 5.69345C1.53172 5.87212 1.53173 6.12778 1.68096 6.30644C2.83132 7.68363 5.78975 10.8 9 10.8C12.2103 10.8 15.1687 7.6837 16.319 6.30645C16.4683 6.12779 16.4683 5.87212 16.319 5.69346C15.1687 4.31627 12.2103 1.19991 9 1.19991C5.78974 1.19991 2.83127 4.3162 1.68095 5.69345Z" fill="currentColor"/>
+                                    </svg>
                                     View details
                                 </button>
                         </div>
-                        `)
+                    `)
 
+                // view detail and row actions buttons
                 if(rowData?.row_actions?.length){
                     $(this).html(`<div class="each-row-action-box">
                         <div class="each-row-action-dropdown-box flex gap-2">
                              <button type="button" class="each-detail-view-button"  data-pk="${rowData.pk}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="12" viewBox="0 0 18 12" fill="none">
+                                    <path d="M8.99989 9.60004C7.97658 9.60004 6.99508 9.22053 6.27158 8.54553C5.54812 7.87053 5.14136 6.95476 5.14136 5.99997C5.14136 5.04519 5.54812 4.12945 6.27158 3.45441C6.99504 2.77941 7.97656 2.3999 8.99989 2.3999C10.0232 2.3999 11.0047 2.77941 11.7282 3.45441C12.4517 4.12941 12.8584 5.04519 12.8584 5.99997C12.8584 6.95476 12.4517 7.87049 11.7282 8.54553C11.0047 9.22053 10.0232 9.60004 8.99989 9.60004ZM8.99989 3.59999C7.95971 3.59999 7.02161 4.185 6.62368 5.08124C6.22497 5.97826 6.44522 7.01105 7.18074 7.69727C7.91626 8.38352 9.02317 8.58902 9.98458 8.21701C10.9452 7.84576 11.5722 6.9705 11.5722 5.99997C11.5722 5.36322 11.3013 4.75271 10.819 4.30272C10.3366 3.85272 9.68232 3.59995 8.99985 3.59995L8.99989 3.59999Z" fill="currentColor"/>
+                                    <path d="M9 12C4.20908 12 0.273413 6.56405 0.106109 6.33C-0.0353696 6.12975 -0.0353696 5.87026 0.106109 5.67C0.27331 5.43599 4.20908 0 9 0C13.7909 0 17.7266 5.43595 17.8939 5.67C18.0354 5.87026 18.0354 6.12975 17.8939 6.33C17.7267 6.56402 13.7909 12 9 12ZM1.68095 5.69345C1.53172 5.87212 1.53173 6.12778 1.68096 6.30644C2.83132 7.68363 5.78975 10.8 9 10.8C12.2103 10.8 15.1687 7.6837 16.319 6.30645C16.4683 6.12779 16.4683 5.87212 16.319 5.69346C15.1687 4.31627 12.2103 1.19991 9 1.19991C5.78974 1.19991 2.83127 4.3162 1.68095 5.69345Z" fill="currentColor"/>
+                                </svg>
                                  View details
                              </button>
                             <button type="button" class="each-row-action-button">
@@ -662,8 +691,6 @@
                 }
             });
 
-            // Detail View
-
             // Current URL
             const currentUrl = window.location.href;
 
@@ -692,7 +719,6 @@
                             headers: {
                                 'X-CSRFToken': "{{csrf_token|safe}}"
                             },
-                            {% comment %} body: formData, {% endcomment %}
                         }
                     );
                     const result = await response.json();
@@ -713,7 +739,6 @@
             };
 
             // detail view handling
-         
 
             // Get the value of a specific query parameter
             function getQueryParamValue(param) {
@@ -778,6 +803,7 @@
                 }
             });
 
+            // row action dropdown
             $(document)
                 .find(".each-row-action-dropdown-box")
                 .each(function (index) {
@@ -817,6 +843,7 @@
                     observer.observe(elementToCheck[0]);
                 });
 
+            // show hide row action box
             $(document)
                 .find("tr")
                 .on("mouseenter click", function () {
@@ -844,7 +871,7 @@
                         .find(".each-row-action-dropdown")
                         .attr("data-is-visible", true)
                         .show();
-                        $(this).parents("tr").css({"z-index": "1", "position": "relative"});
+                        $(this).parents("tr").css({"z-index": "2", "position": "relative"});
                 });
 
             $(document)
@@ -905,6 +932,7 @@
                     let optionData = JSON.parse($(this).attr("data-option-data"));
                     // let rowData = $(this).parents(".each-cell").data("row-data");
                     let rowData = JSON.parse($(this).parents(".each-cell").attr("data-frow-data"));
+                    
                     if(optiontype === 'simple'){
                         $(document).find(".row-action-simple-dialog-overlay").css({"display":"flex"});
                         $(document).find(".row-action-simple-dialog-title").html(optionData?.name);
@@ -983,7 +1011,27 @@
 
         let dataTableApiQueries = null;
 
-        let zelthyTable = $("#zelthytable").DataTable({
+        function debounce(func, timeout = 1000){
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+        
+        function showTableLoader(processing){
+            if(processing){
+                $(document).find(".overlay-spinner").show();
+            } else {
+                $(document).find(".overlay-spinner").hide();
+            }
+        }
+        const onTableProcessing = debounce((processing) => showTableLoader(processing));
+
+        let zelthyTable = $("#zelthytable").on( 'processing.dt', function ( e, settings, processing ) {
+                $(document).find(".overlay-spinner").hide()
+                onTableProcessing(processing);
+            } ).DataTable({
             pagingType: "input",
             fixedColumns: {
                 left: 0,
@@ -1016,11 +1064,10 @@
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M4.34362 0.919211C4.55213 0.708929 4.55213 0.367994 4.34362 0.157712C4.13512 -0.0525706 3.79708 -0.0525706 3.58858 0.157712L0.156375 3.61925C0.130313 3.64553 0.107508 3.67386 0.0879612 3.70372C-0.0488672 3.91272 -0.0260625 4.19675 0.156375 4.38075L3.58858 7.84229C3.79708 8.05257 4.13512 8.05257 4.34362 7.84229C4.55213 7.63201 4.55213 7.29107 4.34362 7.08079L1.28894 4L4.34362 0.919211Z" fill="#1C1E27"/>
                     </svg>`,
                 },
-                processing: `<span class="overlay-spinner"></span>`,
             },
             paging: true,
             scrollX: true,
-            dom: '<"table-top" ><"table-search-box">rt<"table-bottom" <"table-info" i> <"table-pagination-box" l<"table-pagination-box-divider">p> >',
+            dom: '<"table-top" ><"table-search-box"><"overlay-spinner">t<"table-bottom" <"table-info" i> <"table-pagination-box" lp> >',
             columns: columns,
             columnDefs: [
                 {
@@ -1163,6 +1210,8 @@
                                     : [...Object.values(eachData), ""]
                             );
                            }
+                   
+                   
 
                             let newData = {
                                 // data: responseData?.data?.map((eachData, index) => {
@@ -1219,6 +1268,7 @@
                             return callback(newData);
                         });
                 },
+                
             createdRow: function (row, data, dataIndex) {
                 $(row)
                     .find("td")
@@ -1228,16 +1278,19 @@
                     });
             },
             initComplete: function () {
+                $(document).find(".custom-table-page-count").select2({minimumResultsForSearch: -1});
+                $(document).find(".custom-table-page-count").val('10');
+                $(document).find(".custom-table-page-count").trigger('change');
 
                 let totalColumns = this.api().columns().count();
                 let columnFilter = `<tr>
                         ${Array(totalColumns).fill(0).map((_, i) =>{
-                            return(`<th class="each-filter-cell" rowspan="1" colspan="1" aria-label=""></th>`)
+                            return(`<th  class="each-filter-cell" rowspan="1" colspan="1" aria-label=""></th>`)
                         }).join("")}
                     </tr>`
                 
                 let isColumnFilterAvailable = table_metadata.columns.reduce(
-                    (accumulator, currentValue) => (currentValue?.searchable && currentValue?.type === 'string' && currentValue?.choices?.length) || (currentValue?.searchable && currentValue?.type === 'date') ? true : false || accumulator, false,
+                    (accumulator, currentValue) => (currentValue?.searchable && currentValue?.type === 'string' && currentValue?.choices?.length) || (currentValue?.searchable && currentValue?.type === 'datetime') || (currentValue?.searchable && currentValue?.type === 'date') ? true : false || accumulator, false,
                 );
                 
                 if(isColumnFilterAvailable){
@@ -1275,7 +1328,7 @@
                             })
                         }
 
-                        if(table_metadata?.columns[colIdx - filterIndex]?.searchable && table_metadata?.columns[colIdx - filterIndex]?.type === "date"){
+                        if(table_metadata?.columns[colIdx - filterIndex]?.searchable && (table_metadata?.columns[colIdx - filterIndex]?.type === "date" || table_metadata?.columns[colIdx - filterIndex]?.type === "datetime")){
                             let datepicker = $(`
                                 <div class="table-date-range-picker" data-colIdx=${colIdx}>
                                     <span class="date-range-label date-range-placeholder">Select</span>
@@ -1333,7 +1386,7 @@
                             </defs>
                         </svg>
                    
-                        <input id='table_search' type="text" placeholder="${window_size === 'mobile'  ? 'Search': 'Search by ' +searchable.map(eachSeachable => eachSeachable.charAt(0).toUpperCase() + eachSeachable.slice(1)).join(
+                        <input id='table_search' type="text" placeholder="${window_size === 'mobile'  ? 'Search': 'Search by ' +searchable.map(eachSeachable => eachSeachable.toLowerCase()).join(
                             ", "
                         ) }"/>
                     </div>
@@ -1345,7 +1398,7 @@
                                     <path d="M18.408 12.9034C18.7349 12.9034 19 13.1658 19 13.4895V15.6002C19 17.4776 17.4623 19 15.566 19H4.43404C2.53774 19 1 17.4776 1 15.6002V13.4895C1 13.1658 1.26509 12.9034 1.59204 12.9034C1.91899 12.9034 2.18408 13.1658 2.18408 13.4895V15.6002C2.18408 16.8302 3.19166 17.8278 4.43408 17.8278H15.566C16.8084 17.8278 17.816 16.8302 17.816 15.6002V13.4895C17.816 13.1658 18.081 12.9034 18.408 12.9034ZM9.99998 2.00008C10.3136 2.00008 10.5709 2.24164 10.5906 2.54723L10.592 2.58621V12.2574L13.1485 9.89548C13.3771 9.68386 13.73 9.68664 13.9557 9.89409L13.9853 9.92402C14.199 10.1503 14.1962 10.4997 13.9867 10.7232L13.9564 10.7524L10.4077 14.0317C10.3965 14.0422 10.3859 14.0512 10.3747 14.061C10.3712 14.0631 10.3684 14.0658 10.3656 14.0679C10.3585 14.0735 10.3508 14.0791 10.3438 14.0839C10.3388 14.0874 10.3339 14.0909 10.3283 14.0944C10.3234 14.0979 10.3184 14.1013 10.3128 14.1041C10.3079 14.1076 10.303 14.1104 10.2973 14.1139C10.2896 14.1181 10.2819 14.1222 10.2734 14.1264L10.2643 14.1313C10.2573 14.1348 10.2495 14.1382 10.2425 14.1417C10.2369 14.1438 10.232 14.1459 10.227 14.148C10.22 14.1508 10.2137 14.1536 10.2073 14.1563L10.1898 14.1619C10.1848 14.164 10.1799 14.1654 10.1743 14.1668C10.1673 14.1689 10.1602 14.171 10.1525 14.173C10.1335 14.1786 10.1131 14.1828 10.0934 14.1856C10.0885 14.1863 10.0829 14.187 10.078 14.1877L10.0386 14.1918L9.99993 14.1925C9.9697 14.1925 9.93946 14.1904 9.90923 14.1863L9.88181 14.1814C9.7004 14.2176 9.50492 14.1696 9.35939 14.0352L5.80655 10.7523C5.56749 10.5316 5.55484 10.1606 5.77772 9.92395C6.00062 9.68727 6.37538 9.67474 6.61443 9.89541L9.40803 12.4765V2.58614C9.40803 2.26244 9.67303 2.00008 9.99998 2.00008Z" fill="black" stroke="black" stroke-width="0.3"/>
                                 </svg>
                             </button>
-                            <div class="download-confirm-dialog">
+                            <div class="download-confirm-dialog" id="downloadDialog">
                                 <div class="download-confirm-dialog-outer">
                                     <div class="download-confirm-dialog-messages">
                                         <p>
@@ -1380,8 +1433,11 @@
                     </div>
                 `);
 
+
                 $(document).find(".download-confirm-dialog-button").on("click", function(){
+                    document.getElementById('downloadDialog').style.display = 'block';
                     delete dataTableApiQueries['draw'];
+                    dataTableApiQueries['view'] = "table";
                     dataTableApiQueries['action'] = "export_table";
                     
                     fetch(`./?${new URLSearchParams(dataTableApiQueries)}`, {
@@ -1393,13 +1449,14 @@
                         .then((response) => response.json())
                         .then((responseData) => {
                             if(responseData?.success){
-                                ZToast("success", "Download Confirmation", responseData?.message, 3000);
+                                ZToast("success", "Download Confirmation", responseData?.response?.message, 3000);
+                                document.getElementById('downloadDialog').style.display = 'none';
                             } else {
-                                ZToast("error", "Error", responseData?.message, 3000);
+                                ZToast("error", "Error", responseData?.response?.message, 3000);
                             }
                         })
                         .catch(error => {
-                            ZToast("error", "Server Error", responseData?.message, 3000);
+                            ZToast("error", "Server Error", responseData?.response?.message, 3000);
                             throw(error);
                         });
 
@@ -1510,11 +1567,65 @@
                 });
             
                 attachTableDrawEvents();
+                // for handling 70 char condition and custom sort icons
+                $("th.each-cell").each((index, cell) => {
+                    if($(cell).children().length === 0){
+                        // if column header has more than 70 char then break the line
+                        let cellData = $(cell).html()
+                        let cellDataLength = cellData?.length
+                        if(cellData && cellDataLength > 70){
+                            $(cell).css("white-space","break-spaces") 
+                        } 
+                    }
+                    if($(cell).hasClass('sorting')){
+                        
+                        $(cell).append(`<div class="asc_desc_sort_wrapper">
+                                            <div id="asc_sort">
+                                                <svg id="asc_sort_deactive" xmlns="http://www.w3.org/2000/svg" width="8" height="7" viewBox="0 0 8 7" fill="currentColor">
+                                                    <path d="M0.635294 6.22853H7.3776C7.60357 6.22853 7.80305 6.10905 7.89604 5.90957C7.98902 5.7101 7.97604 5.47061 7.84305 5.29762L4.45188 0.896015C4.23889 0.61653 3.74695 0.61653 3.53449 0.896015L0.169781 5.29762C0.0367943 5.47061 0.0103031 5.71009 0.116794 5.90957C0.209781 6.10905 0.409259 6.22853 0.63523 6.22853H0.635294ZM4 2.19889L6.19428 5.07167H1.80571L4 2.19889Z" fill="currentColor"/>
+                                                </svg>
+                                                <svg id="asc_sort_active" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="8" height="7" viewBox="0 0 8 7" fill="none">
+                                                    <path d="M0.635294 6.22841H7.3776C7.60357 6.22841 7.80305 6.10893 7.89604 5.90945C7.98902 5.70997 7.97604 5.47049 7.84305 5.2975L4.45188 0.895893C4.23889 0.616408 3.74695 0.616408 3.53449 0.895893L0.169781 5.2975C0.0367943 5.47049 0.0103031 5.70997 0.116794 5.90945C0.209781 6.10893 0.409323 6.22841 0.635294 6.22841Z" fill="#6C747D"/>
+                                                </svg>
+                                            </div>
+                                            <div id="desc_sort">
+
+                                                <svg id="desc_sort_deactive" xmlns="http://www.w3.org/2000/svg" width="8" height="7" viewBox="0 0 8 7" fill="currentColor">
+                                                    <path d="M7.36479 0.757812H0.635378C0.409406 0.757812 0.209926 0.877293 0.116942 1.07677C0.0239571 1.27624 0.0369419 1.51573 0.169929 1.68872L3.53463 6.09086C3.64113 6.23735 3.81412 6.31683 3.98658 6.31683C4.15957 6.31683 4.33256 6.23683 4.43852 6.09086L7.80322 1.68872C7.93621 1.51573 7.9627 1.27625 7.85621 1.07677C7.79024 0.890799 7.59075 0.757812 7.36478 0.757812H7.36479ZM4.00008 4.78745L1.8058 1.91467H6.20793L4.00008 4.78745Z" fill="currentColor"/>
+                                                </svg>
+                                                <svg id="desc_sort_active" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="8" height="7" viewBox="0 0 8 7" fill="none">
+                                                    <path d="M7.36466 0.757812H0.635256C0.409284 0.757812 0.209804 0.877293 0.11682 1.07677C0.023835 1.27624 0.0368198 1.51573 0.169807 1.68872L3.53451 6.09085C3.641 6.23735 3.814 6.31683 3.98645 6.31683C4.15944 6.31683 4.33243 6.23683 4.4384 6.09085L7.8031 1.68872C7.93609 1.51573 7.96258 1.27625 7.85609 1.07677C7.79011 0.890799 7.59064 0.757812 7.36466 0.757812Z" fill="#6C747D"/>
+                                                </svg>
+                                            </div>
+                                        </div>`)
+                    }
+                })
             },
         });
 
         zelthyTable.on( 'draw.dt', function () {
+            $("th.each-cell").each((index, cell) => {
+                if($(cell).hasClass('sorting_asc')) {
+                    $(cell).children('div').children("div").children('#asc_sort_active').css('display', 'block') 
+                    $(cell).children('div').children("div").children('#asc_sort_deactive').css('display', 'none') 
+                }
+                else{    
+                    $(cell).children('div').children("div").children('#asc_sort_active').css('display', 'none') 
+                    $(cell).children('div').children("div").children('#asc_sort_deactive').css('display', 'block') 
+                } 
+                if($(cell).hasClass('sorting_desc')) {
+                    $(cell).children('div').children("div").children('#desc_sort_active').css('display', 'block') 
+                    $(cell).children('div').children("div").children('#desc_sort_deactive').css('display', 'none') 
+                }
+                else{    
+                    $(cell).children('div').children("div").children('#desc_sort_active').css('display', 'none') 
+                    $(cell).children('div').children("div").children('#desc_sort_deactive').css('display', 'block') 
+                } 
+                    
+                
+            }) 
             attachTableDrawEvents();
+            
         } );
     });
 </script>
@@ -1622,13 +1733,12 @@ $(document).ready(function() {
 <script>
     var csrf_token = "{{ csrf_token }}";
 </script>
-<script src="{% zstatic 'packages/crud/build.v1.0.17.min.js' %}"></script>
+<script src="{% zstatic 'packages/crud/build.v1.0.27.min.js' %}"></script>
 
 <!-- TODO: Handle -->
 {% block custom_js %} {% endblock %}
 
 
 {% endblock %}
-
 
 

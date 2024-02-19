@@ -73,7 +73,7 @@
             <div class="modal-body" style="padding: 8px 10px 8px 40px;" id="detailViewBody">
                 {% comment %} modal body appeded using jquery (check with id) {% endcomment %}
 
-                
+
             </div>
 
         </div>
@@ -88,6 +88,34 @@
 
 <script>
     $(document).ready(function () {
+
+        function ZToast(type, title, message, duration) {
+            $.toast({
+                text: `<div class="z-toast-node ${{ "error": "z-toast-error", "success": "z-toast-success", "warning": "z-toast-warning" }[type]}">
+                    <h3 class="title">
+                        ${title}
+                    </h3>
+                    <span class="message">
+                        ${message}
+                    </span>
+                </div>`,
+                hideAfter: duration,
+            });
+
+
+            $(document).find(".jq-toast-single").find(".close-jq-toast-single").html(`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="Icon/Navigation/16px/Close" clip-path="url(#clip0_1917_1245)">
+                <path id="Vector" d="M10.5041 0.879019L6.30147 5.08166C6.12945 5.25369 5.85655 5.25369 5.6991 5.08166L1.49588 0.879019C1.32386 0.706994 1.05096 0.706994 0.893507 0.879019C0.721482 1.05104 0.721482 1.32394 0.893507 1.48139L5.09673 5.68461C5.26875 5.85664 5.26875 6.12953 5.09673 6.28699L0.879019 10.5041C0.706994 10.6761 0.706994 10.949 0.879019 11.1065C1.05104 11.2785 1.32394 11.2785 1.48139 11.1065L5.68461 6.90327C5.85664 6.73125 6.12954 6.73125 6.28699 6.90327L10.5041 11.121C10.6761 11.293 10.949 11.293 11.1065 11.121C11.2785 10.949 11.2785 10.6761 11.1065 10.5186L6.91791 6.3009C6.74588 6.12887 6.74588 5.85598 6.91791 5.69853L11.1211 1.49531C11.2932 1.32328 11.2932 1.05038 11.1211 0.892933C10.9491 0.720908 10.6768 0.720908 10.5042 0.878924L10.5041 0.879019Z" fill="#6C747D" stroke="#6C747D" stroke-width="0.4"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_1917_1245">
+                <rect width="12" height="12" fill="white"/>
+                </clipPath>
+                </defs>
+                </svg>
+            `);
+        }
+
         let detailViewModal = new bootstrap.Offcanvas(document.getElementById("detailViewModal"))
         detailViewModal.show()
 
@@ -129,7 +157,6 @@
 
             // Update the URL without reloading the page
             window.history.pushState({ path: updatedUrl }, '', updatedUrl);
-        
 
 
             try { // update detail view url, type, payload here
@@ -144,18 +171,18 @@
                 );
                 const result = await response.json();
                 if (result.success) {
-                    console.log("fetch detailview", result.response)
                     return result.response;
                 } else {
                     if (result.response.message) {
-                        alert(result.response.message);
+                        ZToast("error", "Error", result.response.message, 3000);
                     } else {
-                        alert("An error occurred.");
+                        ZToast("error", "Error", "Something went wrong", 3000);
                     };
                 };
             } catch (error) {
+                ZToast("error", "Error", "Something went wrong", 3000);
                 return true; // update with actual error
-                console.error("Error:", error);
+
             };
 
         };
@@ -176,7 +203,7 @@
                         
                         <div class="d-flex" style="gap: 32px; align-items: center;">
                             <div style="color: black; font-size: 22px; font-family: Source Sans Pro; font-weight: 600; line-height: 28px; word-wrap: break-word">${data?.title}</div>
-                            ${data?.workflow_details ? `<div class="detail-view-context">
+                            ${Object.keys(data?.workflow_details).length && data?.workflow_details?.next_transitions?.length !== 0 ? `<div class="detail-view-context">
                                 <button type="button" id="detail-view-context-button">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <g id="Frame 122">
@@ -194,10 +221,10 @@
                             {% endblock %}
                         </div>
 
-                        <ul class="each-detail-view-dropdown" id="detail-view-context-dropdown">
+                        ${typeof data?.workflow_details?.next_transitions === 'object' && Object?.keys(data?.workflow_details?.next_transitions).length !== 0 ? `<ul class="each-detail-view-dropdown" id="detail-view-context-dropdown">
                                 <li class="each-detail-view-dropdown-list">
                                     ${data?.workflow_details?.next_transitions?.map(workflow => {
-                                        return `<button type="button" class="each-detail-view-dropdown-option detail-view-workflow" data-pk=${pk} data-workflow=${encodeURIComponent(JSON.stringify(workflow))} data-type="form">
+                return `<button type="button" class="each-detail-view-dropdown-option detail-view-workflow" data-pk=${pk} data-workflow=${encodeURIComponent(JSON.stringify(workflow))} data-type="form">
                                                     <span class="label" style="display: flex; gap: 4px;">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                                         <path d="M13.408 7.39172L8.52801 2.51171C8.19175 2.17546 7.64801 2.17546 7.32801 2.51171C6.99175 2.84797 6.99175 3.39171 7.32801 3.71171L10.768 7.15171H3.15233C2.68858 7.15171 2.3042 7.53546 2.3042 7.99984C2.3042 8.46359 2.68794 8.84797 3.15233 8.84797H10.7523L7.32801 12.288C6.99175 12.6242 6.99175 13.168 7.32801 13.488C7.48801 13.648 7.71175 13.7442 7.93614 13.7442C8.15988 13.7442 8.36801 13.6642 8.54426 13.488L13.4406 8.59165C13.6006 8.43165 13.6968 8.20791 13.6968 7.98352C13.6643 7.77602 13.568 7.55172 13.408 7.39172Z" fill="black"/>
@@ -206,9 +233,9 @@
                                                     </span>
                                                     <span class="description">${workflow?.description}</span>
                                                 </button>`
-                                    }).join("")}
+            }).join("")}
                                 </li>
-                            </ul>
+                            </ul>` : ""}
                         ${data?.workflow_details?.current_status_meta ? `<div style="padding-left: 8px; padding-right: 8px; padding-top: 5px; padding-bottom: 5px; background: ${data.workflow_details?.current_status_meta?.status_color ? data.workflow_details?.current_status_meta?.status_color : "#c7ced3"}; border-radius: 13px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: inline-flex">
                             <div style="color: white; font-size: 11px; font-family: Lato; font-weight: 700; text-transform: uppercase; line-height: 16px; letter-spacing: 0.40px; word-wrap: break-word">${data.workflow_details?.current_status_meta?.status_label}</div>
                         </div>` : ''}
@@ -222,21 +249,21 @@
                             </div>
                             <div style="flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
                                 ${data?.workflow_details?.tag_details?.map(tag => {
-                                    return `<div style="justify-content: flex-start; align-items: center; gap: 56px; display: inline-flex">
+                return `<div style="justify-content: flex-start; align-items: center; gap: 56px; display: inline-flex">
                                                 <div class="detailview-switch-label">${tag?.tag_label}</div>
                                                 <input type="checkbox" class="detailview-custom-switch" ${(tag?.state === "enabled" && !tag?.is_disable_allowed) || (tag?.state === "disabled" && !tag?.is_enable_allowed) ? "disabled" : ""} ${tag?.state === "enabled" ? "checked" : ""} id=${tag?.name} />
                                                 <label class="detailview-label" data-tag-name=${tag?.name} data-switch-status=${(tag?.state === "enabled" && !tag?.is_disable_allowed) || (tag?.state === "disabled" && !tag?.is_enable_allowed)} for=${tag?.name}>
                                                     <div class="detailview-ball"></div>
                                                 </label>
                                             </div>`
-                                }).join('')}
+            }).join('')}
                             </div>
                         </div>` : ""}
 
                         <div style="flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
                             <div style="color: #6C747D; font-size: 12px; font-family: Lato; font-weight: 700; text-transform: uppercase; line-height: 20px; letter-spacing: 0.60px; word-wrap: break-word; margin-bottom:4px;">General Details</div>
-                                ${Object.keys(data?.general_details?.fields)?.map(field => {
-                                    return `<div style="justify-content: flex-start; align-items: flex-start; gap: 24px; display: inline-flex">
+                                ${Object?.keys(data?.general_details?.fields)?.map(field => {
+                return `<div style="justify-content: flex-start; align-items: flex-start; gap: 24px; display: inline-flex">
                                                 <div style="flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex; width: 150px;">
                                                     <div style="color: #A3ABB1; font-size: 14px; font-family: Lato; font-weight: 400; line-height: 20px; letter-spacing: 0.20px; word-wrap: break-word">${data.general_details?.fields[field]?.display_name}:</div>
                                                 </div>
@@ -244,7 +271,7 @@
                                                     <div style="color: #212429; font-size: 14px; font-family: Lato; font-weight: 700; line-height: 20px; letter-spacing: 0.20px; word-wrap: break-word">${data.general_details?.fields[field]?.value}</div>
                                                 </div>
                                             </div>`
-                                }).join('')}    
+            }).join('')}    
                         </div>
                     </div>
 
@@ -283,25 +310,27 @@
 
             // append timeline detail
             $("#detailViewTimeline").html(`
-                <div style="height: 100%; overflow: auto; position: relative;" id="timeline-container">
+                ${Object?.keys(data?.workflow_details).length !== 0
+                    && data?.configurations?.show_activity_timeline
+                    ? `<div style="height: 100%; overflow: auto; position: relative;" id="timeline-container">
                     <ol class="timeline">
-                        <div class="timeline-heading">Activity timeline
+                        <div class="timeline-heading">Activity Timeline
                         </div>
                         <div class="detail-view-timeline-filter-container">
-                            <div class="detail-view-filter active" data-filter="statuses">
+                            <div class="detail-view-timeline-filter active" data-filter="statuses">
                                 Status
                             </div>
-                            <div class="detail-view-filter" data-filter="tags">
+                            ${data.workflow_details?.workflow_transactions?.tags?.length !== 0 ? `<div class="detail-view-timeline-filter" data-filter="tags">
                                 Tags
-                            </div>
+                            </div>` : ''}
                         </div>
 
                         <div id="timeline-body">
-                            ${data.workflow_details?.workflow_transactions?.statuses ? data.workflow_details?.workflow_transactions?.statuses?.map(transaction => {
-                                let labelsArray = transaction?.form?.form_data && Object.keys(transaction?.form?.form_data) || []
+                            ${(data.workflow_details?.workflow_transactions?.statuses) ? data.workflow_details?.workflow_transactions?.statuses?.map(transaction => {
+                        let labelsArray = transaction?.form?.ui_schema["ui:order"] || []
 
-                                // console.table("timeline data here", transaction, labelsArray)
-                                return `<li class="timeline-item">
+                        console.table("timeline data here", transaction, labelsArray)
+                        return `<li class="timeline-item">
                                             <span class="timeline-item-icon | faded-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                     <g clip-path="url(#clip0_5250_781)">
@@ -323,25 +352,25 @@
                                                     <div style="width: 100%; color: #212429; font-size: 12px; font-family: Lato; font-weight: 700; line-height: 16px; letter-spacing: 0.20px; word-wrap: break-word">Status Changed ${transaction?.from_state_meta?.status_label !== null ? `from ${transaction?.from_state_meta?.status_label}` : ""}  to ${transaction?.to_state_meta?.status_label}</div>
                                                     ${labelsArray ? `<div class="timeline-details-container timeline-accordion-panel">
                                                         ${labelsArray?.map((key) => {
-                                                            // Check if the key exists in jsonSchema.properties
-                                                            if (transaction?.form?.json_schema?.properties && transaction?.form?.json_schema?.properties[key]) {
-                                                                // Get the title from jsonSchema.properties
-                                                                const title = transaction?.form?.json_schema?.properties[key]?.title;
-                                                                return `<div class="timeline-detail-block">
+                            // Check if the key exists in jsonSchema.properties
+                            if (transaction?.form?.json_schema?.properties && transaction?.form?.json_schema?.properties[key]) {
+                                // Get the title from jsonSchema.properties
+                                const title = transaction?.form?.json_schema?.properties[key]?.title;
+                                return `<div class="timeline-detail-block">
                                                                             <div class="timeline-details-head">${title}</div>
                                                                             <div class="timeline-details-data">${transaction?.form?.form_data[key]}</div>
                                                                         </div>`
-                                                            } else {
-                                                                console.log(`Key '${key}' does not exist`);
-                                                            }
-                                                        }).join('')}
+                            } else {
+                                console.log(`Key '${key}' does not exist`);
+                            }
+                        }).join('')}
                                                     </div>` : ''}
                                                     ${labelsArray?.length > 0 ? `<div class="timeline-more-detaild-btn timeline-accordion">Read more</div>` : ''}
                                                     <div class="timeline-details-head">${transaction?.actor}</div>
                                                 </div>
                                             </div>
                                         </li>`
-                            }).join("") : 'No data available'}
+                    }).join("") : 'No data available'}
                         </div>
                     </ol>
                     <div id="timeline-scroll-to-top" style="position: fixed; bottom: 30px; right: 20px;">
@@ -349,10 +378,10 @@
                             <path d="M7.39184 2.59224L2.51184 7.47224C2.17558 7.80849 2.17558 8.35224 2.51184 8.67224C2.84809 9.00849 3.39184 9.00849 3.71184 8.67224L7.15184 5.23224L7.15184 12.8479C7.15184 13.3117 7.53558 13.696 7.99997 13.696C8.46371 13.696 8.84809 13.3123 8.84809 12.8479V5.24792L12.2881 8.67224C12.6244 9.00849 13.1681 9.00849 13.4881 8.67224C13.6481 8.51224 13.7443 8.28849 13.7443 8.06411C13.7443 7.84037 13.6643 7.63224 13.4881 7.45598L8.59177 2.55966C8.43177 2.39966 8.20803 2.3034 7.98365 2.3034C7.77614 2.3359 7.55184 2.43223 7.39184 2.59224Z" fill="inherit"/>
                         </svg>
                     </div>
-                </div>
+                </div>` : ""}
             `);
 
-            function handleAccordian () {
+            function handleAccordian() {
                 // handle timeline accordion
                 var acc = document.getElementsByClassName("timeline-accordion");
 
@@ -373,74 +402,81 @@
                 };
             }
 
-            $(".detail-view-filter").on("click", function () {
+            handleAccordian()
+
+            $(".detail-view-timeline-filter").on("click", function () {
                 let filter = $(this).attr("data-filter")
-                $(".detail-view-filter").removeClass("active")
-                $(this).addClass("active")
-                
-                function getTimeline (filter) {
-                    $("#timeline-body").html(`
-                        ${data.workflow_details?.workflow_transactions[filter] ? data.workflow_details?.workflow_transactions[filter]?.map(transaction => {
+
+                let prevFilter = $(".detail-view-timeline-filter.active").attr('data-filter')
+                let selectedFilter = $(this).attr("data-filter")
+
+                if (prevFilter !== selectedFilter) {
+                    $(".detail-view-timeline-filter").removeClass("active")
+                    $(this).addClass("active")
+
+                    function getTimeline(filter) {
+                        $("#timeline-body").html(`
+                            ${data.workflow_details?.workflow_transactions[filter] ? data.workflow_details?.workflow_transactions[filter]?.map(transaction => {
                             let labelsArray = transaction?.form?.form_data && Object.keys(transaction?.form?.form_data) || []
 
-                            // console.table("timeline data here", transaction, labelsArray)
                             return `<li class="timeline-item">
-                                        <span class="timeline-item-icon | faded-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                                <g clip-path="url(#clip0_5250_781)">
-                                                    <path d="M8.42791 2.73569C9.31132 2.57584 10.1851 2.57584 11.0673 2.73569C11.1406 2.74771 11.2152 2.75372 11.2885 2.75372C11.8726 2.75372 12.3894 2.33544 12.4976 1.74169C12.6178 1.07341 12.1743 0.433996 11.5036 0.311412C10.3317 0.0986701 9.15866 0.0986701 7.98916 0.311412C7.32088 0.431602 6.87497 1.07104 6.99516 1.74169C7.11535 2.40997 7.75479 2.85587 8.42543 2.73569L8.42791 2.73569Z" fill="white"/>
-                                                    <path d="M3.97241 3.48934C3.45198 3.04944 2.67675 3.11433 2.23684 3.63357C1.85223 4.08911 1.51087 4.57228 1.22121 5.07708C0.931548 5.57828 0.682751 6.11674 0.479612 6.67684C0.248843 7.31625 0.580573 8.02179 1.22121 8.25256C1.35943 8.30184 1.49766 8.32588 1.63709 8.32588C2.14189 8.32588 2.61546 8.01218 2.79454 7.51098C2.94478 7.08911 3.13349 6.68286 3.35103 6.30785C3.56617 5.93283 3.8246 5.56988 4.11426 5.22492C4.55417 4.70449 4.48927 3.92926 3.97003 3.48935L3.97241 3.48934Z" fill="white"/>
-                                                    <path d="M4.11653 14.7755C3.82686 14.4341 3.56846 14.0675 3.35329 13.6925C3.13815 13.3175 2.95065 12.9113 2.7968 12.4894C2.56603 11.85 1.86169 11.517 1.22108 11.7478C0.581663 11.9786 0.248709 12.6829 0.479479 13.3235C0.678999 13.8836 0.928986 14.4221 1.22108 14.9233C1.51074 15.4245 1.85209 15.9112 2.23671 16.3668C2.4795 16.6564 2.82806 16.8043 3.17782 16.8043C3.45787 16.8043 3.74031 16.7093 3.97108 16.5122C4.49151 16.0723 4.5552 15.2971 4.11531 14.7766L4.11653 14.7755Z" fill="white"/>
-                                                    <path d="M18.1697 15.0985C18.2033 15.0396 18.243 14.982 18.2779 14.9231C18.3151 14.8582 18.3512 14.7909 18.386 14.7259C18.398 14.7043 18.4101 14.6827 18.4233 14.661C18.4762 14.5625 18.5242 14.4639 18.5735 14.3654C18.6012 14.3101 18.6264 14.2572 18.6541 14.2019C18.6817 14.1406 18.7093 14.0793 18.7406 14.0144C18.7803 13.9279 18.8175 13.8389 18.8548 13.75C18.8644 13.7259 18.8728 13.7043 18.8824 13.6791C19.344 12.5409 19.5988 11.3005 19.5988 9.99876C19.5988 8.69707 19.3343 7.35574 18.8079 6.13107C18.8019 6.11544 18.7899 6.10342 18.7839 6.0878C18.6336 5.74045 18.4666 5.40149 18.2791 5.0782C17.9894 4.577 17.6456 4.09023 17.2634 3.63469C16.8235 3.11426 16.0483 3.05057 15.5279 3.49046C15.0074 3.93035 14.9437 4.7056 15.3836 5.22603C15.6733 5.56738 15.9317 5.93397 16.1469 6.30895C16.3656 6.68397 16.5495 7.09021 16.7033 7.51209C16.7033 7.5181 16.7094 7.52171 16.7094 7.52772C16.993 8.31858 17.1372 9.1491 17.1372 10.0013C17.1372 10.8534 16.9834 11.7092 16.707 12.4845V12.4905C16.636 12.69 16.5531 12.8847 16.4666 13.0746C16.457 13.0926 16.4509 13.1118 16.4425 13.1299C16.3656 13.2993 16.2791 13.4616 16.1877 13.619C16.1637 13.6647 16.1348 13.708 16.1108 13.7549C16.0243 13.8991 15.9329 14.0409 15.8368 14.1827C15.8055 14.2284 15.7719 14.2717 15.7418 14.3186C15.6433 14.4568 15.5387 14.589 15.4305 14.7212C14.3416 16.0253 12.8115 16.952 11.0699 17.2657C10.8548 17.3053 10.6396 17.333 10.4233 17.3522H10.3956C9.74297 17.4111 9.09152 17.3799 8.43528 17.2633C7.7646 17.1407 7.12758 17.5866 7.005 18.2573C6.88481 18.9255 7.32832 19.565 7.999 19.6875C8.58312 19.7921 9.17448 19.8474 9.7562 19.8474C9.91005 19.8474 10.0639 19.8438 10.2177 19.8354C10.3103 19.8318 10.4028 19.8234 10.4942 19.8174C10.5495 19.8137 10.6048 19.8113 10.66 19.8053C10.7766 19.7933 10.8944 19.7813 11.011 19.7657C11.0422 19.7621 11.0699 19.7597 11.0999 19.7537C11.2225 19.7356 11.3463 19.7164 11.4689 19.6948C11.4846 19.6948 11.4966 19.6911 11.5122 19.6887H11.5218C13.7862 19.2765 15.7861 18.0854 17.2261 16.4051C17.2381 16.393 17.2538 16.3834 17.2658 16.3678C17.6047 15.9711 17.9052 15.5457 18.1708 15.1094C18.1708 15.1094 18.1744 15.1034 18.1768 15.0998L18.1697 15.0985Z" fill="white"/>
-                                                </g>
-                                                <defs>
-                                                    <clipPath id="clip0_5250_781">
-                                                    <rect width="20" height="20" fill="white"/>
-                                                    </clipPath>
-                                                </defs>
-                                            </svg>
-                                        </span>
-                                        <div class="timeline-item-wrapper">
-                                            <div style="width: 100%; height: 100%; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 4px; display: inline-flex">
-                                                
-                                                <div class="timeline-details-head">${transaction.created_at}</div>
-                                                <div style="width: 100%; color: #212429; font-size: 12px; font-family: Lato; font-weight: 700; line-height: 16px; letter-spacing: 0.20px; word-wrap: break-word">
-                                                   ${filter === "statuses" ? `Status Changed ${transaction?.from_state_meta?.status_label !== null ? `from ${transaction?.from_state_meta?.status_label}` : ""}  to ${transaction?.to_state_meta?.status_label}` : `${transaction?.to_state == "enabled" ? `Tag Applied: ${transaction?.transition_label}` : `Tag Removed: ${transaction?.transition_label}` }`}
+                                            <span class="timeline-item-icon | faded-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <g clip-path="url(#clip0_5250_781)">
+                                                        <path d="M8.42791 2.73569C9.31132 2.57584 10.1851 2.57584 11.0673 2.73569C11.1406 2.74771 11.2152 2.75372 11.2885 2.75372C11.8726 2.75372 12.3894 2.33544 12.4976 1.74169C12.6178 1.07341 12.1743 0.433996 11.5036 0.311412C10.3317 0.0986701 9.15866 0.0986701 7.98916 0.311412C7.32088 0.431602 6.87497 1.07104 6.99516 1.74169C7.11535 2.40997 7.75479 2.85587 8.42543 2.73569L8.42791 2.73569Z" fill="white"/>
+                                                        <path d="M3.97241 3.48934C3.45198 3.04944 2.67675 3.11433 2.23684 3.63357C1.85223 4.08911 1.51087 4.57228 1.22121 5.07708C0.931548 5.57828 0.682751 6.11674 0.479612 6.67684C0.248843 7.31625 0.580573 8.02179 1.22121 8.25256C1.35943 8.30184 1.49766 8.32588 1.63709 8.32588C2.14189 8.32588 2.61546 8.01218 2.79454 7.51098C2.94478 7.08911 3.13349 6.68286 3.35103 6.30785C3.56617 5.93283 3.8246 5.56988 4.11426 5.22492C4.55417 4.70449 4.48927 3.92926 3.97003 3.48935L3.97241 3.48934Z" fill="white"/>
+                                                        <path d="M4.11653 14.7755C3.82686 14.4341 3.56846 14.0675 3.35329 13.6925C3.13815 13.3175 2.95065 12.9113 2.7968 12.4894C2.56603 11.85 1.86169 11.517 1.22108 11.7478C0.581663 11.9786 0.248709 12.6829 0.479479 13.3235C0.678999 13.8836 0.928986 14.4221 1.22108 14.9233C1.51074 15.4245 1.85209 15.9112 2.23671 16.3668C2.4795 16.6564 2.82806 16.8043 3.17782 16.8043C3.45787 16.8043 3.74031 16.7093 3.97108 16.5122C4.49151 16.0723 4.5552 15.2971 4.11531 14.7766L4.11653 14.7755Z" fill="white"/>
+                                                        <path d="M18.1697 15.0985C18.2033 15.0396 18.243 14.982 18.2779 14.9231C18.3151 14.8582 18.3512 14.7909 18.386 14.7259C18.398 14.7043 18.4101 14.6827 18.4233 14.661C18.4762 14.5625 18.5242 14.4639 18.5735 14.3654C18.6012 14.3101 18.6264 14.2572 18.6541 14.2019C18.6817 14.1406 18.7093 14.0793 18.7406 14.0144C18.7803 13.9279 18.8175 13.8389 18.8548 13.75C18.8644 13.7259 18.8728 13.7043 18.8824 13.6791C19.344 12.5409 19.5988 11.3005 19.5988 9.99876C19.5988 8.69707 19.3343 7.35574 18.8079 6.13107C18.8019 6.11544 18.7899 6.10342 18.7839 6.0878C18.6336 5.74045 18.4666 5.40149 18.2791 5.0782C17.9894 4.577 17.6456 4.09023 17.2634 3.63469C16.8235 3.11426 16.0483 3.05057 15.5279 3.49046C15.0074 3.93035 14.9437 4.7056 15.3836 5.22603C15.6733 5.56738 15.9317 5.93397 16.1469 6.30895C16.3656 6.68397 16.5495 7.09021 16.7033 7.51209C16.7033 7.5181 16.7094 7.52171 16.7094 7.52772C16.993 8.31858 17.1372 9.1491 17.1372 10.0013C17.1372 10.8534 16.9834 11.7092 16.707 12.4845V12.4905C16.636 12.69 16.5531 12.8847 16.4666 13.0746C16.457 13.0926 16.4509 13.1118 16.4425 13.1299C16.3656 13.2993 16.2791 13.4616 16.1877 13.619C16.1637 13.6647 16.1348 13.708 16.1108 13.7549C16.0243 13.8991 15.9329 14.0409 15.8368 14.1827C15.8055 14.2284 15.7719 14.2717 15.7418 14.3186C15.6433 14.4568 15.5387 14.589 15.4305 14.7212C14.3416 16.0253 12.8115 16.952 11.0699 17.2657C10.8548 17.3053 10.6396 17.333 10.4233 17.3522H10.3956C9.74297 17.4111 9.09152 17.3799 8.43528 17.2633C7.7646 17.1407 7.12758 17.5866 7.005 18.2573C6.88481 18.9255 7.32832 19.565 7.999 19.6875C8.58312 19.7921 9.17448 19.8474 9.7562 19.8474C9.91005 19.8474 10.0639 19.8438 10.2177 19.8354C10.3103 19.8318 10.4028 19.8234 10.4942 19.8174C10.5495 19.8137 10.6048 19.8113 10.66 19.8053C10.7766 19.7933 10.8944 19.7813 11.011 19.7657C11.0422 19.7621 11.0699 19.7597 11.0999 19.7537C11.2225 19.7356 11.3463 19.7164 11.4689 19.6948C11.4846 19.6948 11.4966 19.6911 11.5122 19.6887H11.5218C13.7862 19.2765 15.7861 18.0854 17.2261 16.4051C17.2381 16.393 17.2538 16.3834 17.2658 16.3678C17.6047 15.9711 17.9052 15.5457 18.1708 15.1094C18.1708 15.1094 18.1744 15.1034 18.1768 15.0998L18.1697 15.0985Z" fill="white"/>
+                                                    </g>
+                                                    <defs>
+                                                        <clipPath id="clip0_5250_781">
+                                                        <rect width="20" height="20" fill="white"/>
+                                                        </clipPath>
+                                                    </defs>
+                                                </svg>
+                                            </span>
+                                            <div class="timeline-item-wrapper">
+                                                <div style="width: 100%; height: 100%; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 4px; display: inline-flex">
+                                                    
+                                                    <div class="timeline-details-head">${transaction.created_at}</div>
+                                                    <div style="width: 100%; color: #212429; font-size: 12px; font-family: Lato; font-weight: 700; line-height: 16px; letter-spacing: 0.20px; word-wrap: break-word">
+                                                       ${filter === "statuses" ? `Status Changed ${transaction?.from_state_meta?.status_label !== null ? `from ${transaction?.from_state_meta?.status_label}` : ""}  to ${transaction?.to_state_meta?.status_label}` : `${transaction?.to_state == "enabled" ? `Tag Applied: ${transaction?.transition_label}` : `Tag Removed: ${transaction?.transition_label}`}`}
+                                                    </div>
+                                                    
+                                                    <div class="timeline-details-container timeline-accordion-panel">
+                                                        ${labelsArray.map((key) => {
+                                // Check if the key exists in jsonSchema.properties
+                                if (transaction?.form?.json_schema.properties && transaction?.form?.json_schema.properties[key]) {
+                                    // Get the title from jsonSchema.properties
+                                    const title = transaction?.form?.json_schema.properties[key].title;
+                                    // console.log(`Title for key '${key}': ${title}`);
+                                    return `<div class="timeline-detail-block">
+                                                                            <div class="timeline-details-head">${title}</div>
+                                                                            <div class="timeline-details-data">${transaction?.form?.form_data[key]}</div>
+                                                                        </div>`
+                                } else {
+                                    console.log(`Key '${key}' does not exist in jsonSchema.properties`);
+                                }
+                            }).join('')}
+                                                    </div>
+                                                    ${labelsArray.length > 0 ? `<div class="timeline-more-detaild-btn timeline-accordion">Read more</div>` : ''}
+                                                    <div class="timeline-details-head">${transaction.actor}</div>
                                                 </div>
-                                                
-                                                <div class="timeline-details-container timeline-accordion-panel">
-                                                    ${labelsArray.map((key) => {
-                                                        // Check if the key exists in jsonSchema.properties
-                                                        if (transaction?.form?.json_schema.properties && transaction?.form?.json_schema.properties[key]) {
-                                                            // Get the title from jsonSchema.properties
-                                                            const title = transaction?.form?.json_schema.properties[key].title;
-                                                            // console.log(`Title for key '${key}': ${title}`);
-                                                            return `<div class="timeline-detail-block">
-                                                                        <div class="timeline-details-head">${title}</div>
-                                                                        <div class="timeline-details-data">${transaction?.form?.form_data[key]}</div>
-                                                                    </div>`
-                                                        } else {
-                                                            console.log(`Key '${key}' does not exist in jsonSchema.properties`);
-                                                        }
-                                                    }).join('')}
-                                                </div>
-                                                ${labelsArray.length > 0 ? `<div class="timeline-more-detaild-btn timeline-accordion">Read more</div>` : ''}
-                                                <div class="timeline-details-head">${transaction.actor}</div>
                                             </div>
-                                        </div>
-                                    </li>`
+                                        </li>`
                         }).join("") : 'No data available'}
-                    `);
+                        `);
+                    }
+
+                    $("#timeline-body").empty();
+                    getTimeline(filter)
+                    handleAccordian()
                 }
 
-                $("#timeline-body").empty();
-                getTimeline(filter)
-                handleAccordian()
             })
 
-            
-            // Scroll to the top of the div
 
+            // Scroll to the top of the div
             var $scrollableDiv = $('#timeline-container');
             var $scrollToTopBtn = $('#timeline-scroll-to-top');
             $scrollToTopBtn.fadeOut();
@@ -463,19 +499,22 @@
             let detailViewContextMenu = document.getElementById('detail-view-context-dropdown');
 
             let popperInstance = Popper.createPopper(detailViewContextButton, detailViewContextMenu, {
-                placement: 'bottom-end',
+                placement: 'bottom-start',
                 modifiers: [
                     {
                         name: "offset",
                         options: {
-                            offset: [50, 10],
+                            offset: [-20, 0],
                         },
                     },
                 ],
             });
-            // popperInstance.setOptions({ placement: "bottom-start" });
+
             $("#detail-view-context-button").on("click", function (event) {
                 detailViewContextMenu.classList.toggle('show');
+                if (popperInstance) {
+                    popperInstance?.update();
+                }
             });
 
             // Click event handler for the entire document
@@ -487,7 +526,6 @@
                 }
             });
 
-            handleAccordian()
 
             $(".detail-view-workflow").on("click", function () {
                 let workflowData = JSON.parse(decodeURIComponent($(this).attr("data-workflow")));
@@ -518,7 +556,10 @@
                     }
                     $(document).find(".row-action-simple-dialog-overlay").css({ "display": "flex" });
                     $(document).find(".row-action-simple-dialog-description").html(!isNullOrEmpty(workflowData?.confirmation_message) ? workflowData?.confirmation_message : "Are you sure you want to perform this action?");
+
+                    // non form based workflow handling
                     $(".row-action-simple-dialog-form .confirm-btn").on("click", async function () {
+                        $(this).attr("disabled", true);
                         try {
                             const response = await fetch(
                                 `./?pk=${pk}&view=workflow&action=process_transition&pk=${pk}&transition_name=${workflowData.name}`,
@@ -531,18 +572,20 @@
                             );
                             const result = await response.json();
                             if (result.success) {
+                                $(this).attr("disabled", false);
                                 window.location.reload();
                                 return result.response;
                             } else {
+                                $(this).attr("disabled", false);
                                 if (result.response.message) {
-                                    alert(result.response.message);
+                                    ZToast("error", "Error", result.response.message, 3000);
                                 } else {
-                                    alert("An error occurred.");
+                                    ZToast("error", "Error", "Something went wrong", 3000);
                                 };
                             };
                         } catch (error) {
+                            ZToast("error", "Error", "Something went wrong", 3000);
                             return true; // update with actual error
-                            console.error("Error:", error);
                         };
                     })
                 }
@@ -559,95 +602,98 @@
             let response = await fetchAndSetDetailView(pk);
             await createDetailView(pk, response);
 
-            
+
             // handle detailview tags drawer
-            // Select the element by its ID
             $(".detailview-label").on("click", function (event) {
-                const detailViewSwitch =  this
+                const detailViewSwitch = this
                 const tagsData = response?.workflow_details?.tag_details.find(tag => tag.name === $(this).attr("data-tag-name"))
 
                 switch (tagsData.state) {
                     case "disabled":
-                            if (tagsData.enable.is_form_based && tagsData.is_enable_allowed) {
-                                const tagsDrawer = document.getElementById("detailViewTagsDrawer")
-                                var bsOffcanvas = new bootstrap.Offcanvas(tagsDrawer)
-                                bsOffcanvas.show()
+                        if (tagsData.enable.is_form_based && tagsData.is_enable_allowed) {
+                            const tagsDrawer = document.getElementById("detailViewTagsDrawer")
+                            var bsOffcanvas = new bootstrap.Offcanvas(tagsDrawer)
+                            bsOffcanvas.show()
 
-                                ZelthyRJSF("#detailViewTagsDrawer .zelthy-dynamic-form", {
-                                    "get_data": {
-                                        "is_api_based": true,
-                                        "url": `./?view=workflow&action=initialize_form&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
-                                        "static_config": {},
-                                    },
-                                    "post_data": {
-                                        "http_method": "POST",
-                                        "url": `./?view=workflow&action=process_transition&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
-                                        "payload_type": "FORMDATA"
-                                    }
-                                })
-
-                                $('.offcanvas-backdrop').on('click', function (event) {
-                                    // Check if the click target is the backdrop
-                                    if ($(event.target).hasClass('offcanvas-backdrop')) {
-                                        // Prevent the offcanvas from closing
-                                        event.stopPropagation();
-                                    }
-                                });
-
-                                $("#detailViewTagsDrawer #detailViewModalClose").on("click", async function () {
-                                        if (tagsData.state == "enabled") {
-                                            $(detailViewSwitch).prev().prop('checked', true);
-                                        } else {
-                                            $(detailViewSwitch).prev().prop('checked', false);
-                                        }
-
-                                    })
-                            } else {
-                                function isNullOrEmpty(value) {
-                                    return value === null || value === undefined || value === '';
+                            ZelthyRJSF("#detailViewTagsDrawer .zelthy-dynamic-form", {
+                                "get_data": {
+                                    "is_api_based": true,
+                                    "url": `./?view=workflow&action=initialize_form&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
+                                    "static_config": {},
+                                },
+                                "post_data": {
+                                    "http_method": "POST",
+                                    "url": `./?view=workflow&action=process_transition&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
+                                    "payload_type": "FORMDATA"
                                 }
+                            })
 
-                                if (tagsData.is_enable_allowed) {
-                                    $(document).find(".row-action-simple-dialog-overlay").css({ "display": "flex" });
-                                    $(document).find(".row-action-simple-dialog-description").html(!isNullOrEmpty(tagsData?.enable?.confirmation_message) ? tagsData?.enable?.confirmation_message : "Are you sure you want to perform this action?");
-                                    $(".row-action-simple-dialog-form .close-button").on("click", async function () {
-                                        if (tagsData.state == "enabled") {
-                                            $(detailViewSwitch).prev().prop('checked', true);
-                                        } else {
-                                            $(detailViewSwitch).prev().prop('checked', false);
-                                        }
-
-                                    })
+                            $('.offcanvas-backdrop').on('click', function (event) {
+                                // Check if the click target is the backdrop
+                                if ($(event.target).hasClass('offcanvas-backdrop')) {
+                                    // Prevent the offcanvas from closing
+                                    event.stopPropagation();
                                 }
-                                
-                                $(".row-action-simple-dialog-form .confirm-btn").on("click", async function () {
-                                    try {
-                                        const response = await fetch(
-                                            `./?view=workflow&action=process_transition&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
-                                            {
-                                                method: "POST",
-                                                headers: {
-                                                    'X-CSRFToken': "{{csrf_token|safe}}"
-                                                },
-                                            }
-                                        );
-                                        const result = await response.json();
-                                        if (result.success) {
-                                            window.location.reload();
-                                            return result.response;
-                                        } else {
-                                            if (result.response.message) {
-                                                alert(result.response.message);
-                                            } else {
-                                                alert("An error occurred.");
-                                            };
-                                        };
-                                    } catch (error) {
-                                        return true; // update with actual error
-                                        console.error("Error:", error);
-                                    };
+                            });
+
+                            // Handle detail view tags switch if modal closed without any update
+                            $("#detailViewTagsDrawer #detailViewModalClose").on("click", async function () {
+                                if (tagsData.state == "enabled") {
+                                    $(detailViewSwitch).prev().prop('checked', true);
+                                } else {
+                                    $(detailViewSwitch).prev().prop('checked', false);
+                                }
+                            })
+                        } else {
+                            function isNullOrEmpty(value) {
+                                return value === null || value === undefined || value === '';
+                            }
+
+                            if (tagsData.is_enable_allowed) {
+                                $(document).find(".row-action-simple-dialog-overlay").css({ "display": "flex" });
+                                $(document).find(".row-action-simple-dialog-description").html(!isNullOrEmpty(tagsData?.enable?.confirmation_message) ? tagsData?.enable?.confirmation_message : "Are you sure you want to perform this action?");
+                                // Handle detail view tags switch if modal closed without any update
+                                $(".row-action-simple-dialog-form .close-button").on("click", async function () {
+                                    if (tagsData.state == "enabled") {
+                                        $(detailViewSwitch).prev().prop('checked', true);
+                                    } else {
+                                        $(detailViewSwitch).prev().prop('checked', false);
+                                    }
+
                                 })
                             }
+
+                            $(".row-action-simple-dialog-form .confirm-btn").on("click", async function () {
+                                $(this).attr("disabled", true);
+                                try {
+                                    const response = await fetch(
+                                        `./?view=workflow&action=process_transition&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
+                                        {
+                                            method: "POST",
+                                            headers: {
+                                                'X-CSRFToken': "{{csrf_token|safe}}"
+                                            },
+                                        }
+                                    );
+                                    const result = await response.json();
+                                    if (result.success) {
+                                        $(this).attr("disabled", false);
+                                        window.location.reload();
+                                        return result.response;
+                                    } else {
+                                        $(this).attr("disabled", false);
+                                        if (result.response.message) {
+                                            ZToast("error", "Error", result.response.message, 3000);
+                                        } else {
+                                            ZToast("error", "Error", "Something wen wrong", 3000);
+                                        };
+                                    };
+                                } catch (error) {
+                                    return true; // update with actual error
+                                    console.error("Error:", error);
+                                };
+                            })
+                        }
                         break;
                     case "enabled":
                         if (tagsData.disable.is_form_based && tagsData.is_disable_allowed) {
@@ -677,6 +723,7 @@
                             if (tagsData.is_disable_allowed) {
                                 $(document).find(".row-action-simple-dialog-overlay").css({ "display": "flex" });
                                 $(document).find(".row-action-simple-dialog-description").html(!isNullOrEmpty(tagsData?.disable?.confirmation_message) ? tagsData?.disable?.confirmation_message : "Are you sure you want to perform this action?");
+                                // Handle detail view tags switch if modal closed without any update
                                 $(".row-action-simple-dialog-form .close-button").on("click", async function () {
                                     if (tagsData.state == "enabled") {
                                         $(detailViewSwitch).prev().prop('checked', true);
@@ -687,6 +734,7 @@
                                 })
                             }
                             $(".row-action-simple-dialog-form .confirm-btn").on("click", async function () {
+                                $(this).attr("disabled", true);
                                 try {
                                     const response = await fetch(
                                         `./?view=workflow&action=process_transition&pk=${pk}&transition_name=${tagsData.name}&transition_type=tag&transition_state=${tagsData.state == "enabled" ? "disabled" : "enabled"}`,
@@ -699,9 +747,11 @@
                                     );
                                     const result = await response.json();
                                     if (result.success) {
+                                        $(this).attr("disabled", false);
                                         window.location.reload();
                                         return result.response;
                                     } else {
+                                        $(this).attr("disabled", false);
                                         if (result.response.message) {
                                             alert(result.response.message);
                                         } else {
@@ -715,7 +765,7 @@
                             })
                         }
                         break;
-                
+
                     default:
                         break;
                 }
@@ -737,10 +787,8 @@
 
         // if detail view is already opend before refreshing reopen detailview
         if (doesQueryParamExist("pk")) {
-            // {% comment %} let deatilViewModal = new bootstrap.Modal(document.getElementById("detailViewModal"), {}); {% endcomment %}
             const DetailViewPK = getQueryParamValue("pk");
 
-            // {% comment %} deatilViewModal.show(); {% endcomment %}
             loadDetailView(DetailViewPK);
         };
 
@@ -764,6 +812,7 @@
 <script>
     var csrf_token = "{{ csrf_token }}";
 </script>
-<script src="{% zstatic 'packages/crud/build.v1.0.17.min.js' %}"></script>
+<script src="{% zstatic 'packages/crud/build.v1.0.27.min.js' %}"></script>
+
 
 {% endblock %}

@@ -34,15 +34,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
         integrity="sha512-AvCfbOQzCVi2ctVWF4m89jLwTn/zVPJuS7rhiKyY3zqyCdbPqtvNa0I628GJqPytbowfFjkAGOpq85E5kQc40Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+      .login-hero-section{
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding-left: 0rem !important ;
+        padding-right: 0rem !important;
+      }
+      .login-box,input[type="text"],input[type="password"],input[type="submit"]{
+        border-radius: 0% !important;
+      }
+      .login-container{
+        background-repeat: no-repeat;
+        background-size: cover;
+
+      }
+      .login-logo > img{
+          object-fit: contain;
+      }
+ 
+    </style>
+
   </head>
   <body >
+    
     <div class="login-container">
     {% include "applogin/_message_block.html" %}
-    
     
 
     
     <div class="login-logo">
+    {% block logo %}
       <svg
         width="138"
         height="48"
@@ -75,6 +98,7 @@
           fill="white"
         />
       </svg>
+    {% endblock %}
     </div>
 
     <section class="main-login-section">
@@ -98,6 +122,14 @@
 
     </div>
 
+    {% block background_image %}  
+      <script>
+        // $('.login-container').css({"background-image": "url({% static 'Patient_edu.jpeg' %})"})
+        $('.login-container').css({"background-image": "url('https://zc-6c128e77e5a548239a15-sb.s3.amazonaws.com/static/msdtandt039/ZelthyTenantStaticFile/19237d89-b192-4d4a-a5aa-699bb4d77231.jpg')"})
+        console.log($('.login-container').css("background-image"));
+      </script>
+
+    {% endblock %}
     <!-- common functions -->
     <script src="{% static 'js/common.min.js' %}"></script>
     <!-- uikit functions -->

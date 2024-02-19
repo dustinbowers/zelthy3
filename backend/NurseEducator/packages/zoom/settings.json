@@ -1,0 +1,27 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "configure",
+            "path": "configure"
+        },
+        {
+            "name": "videocall",
+            "path": "videocall"
+        }
+    ],
+    "app_routes": [       
+        {
+            "re_path": "^videocall/",
+            "module": "videocall",
+            "url": "urls"
+        },       
+        {
+            "re_path": "^configure/",
+            "module": "configure",
+            "url": "urls"
+        }
+        
+    ],
+    "package_routes": []
+}

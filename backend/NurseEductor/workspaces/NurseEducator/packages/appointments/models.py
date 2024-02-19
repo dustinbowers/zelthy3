@@ -15,11 +15,11 @@ class AbstractAppointmentModel(DynamicModelBase):
 
     F2F = 'f2f'
     VIDEO = 'video'
-    TELEPHONIC = 'telephonic'
+    AUDIO = 'audio'
     APPOINTMENT_TYPES = [
         (F2F, 'Face to Face'),
-        (VIDEO, 'Video'),
-        (TELEPHONIC, 'Telephonic'),
+        (VIDEO, 'Video Call'),
+        (AUDIO, 'Audio Call'),
         ]
 
     title = models.CharField(max_length=200, blank=True, null=True)
@@ -35,8 +35,7 @@ class AbstractAppointmentModel(DynamicModelBase):
     participants = ArrayField(models.UUIDField()) # uuid's of participants
     appointment_type = models.CharField(
         max_length=10,
-        choices=APPOINTMENT_TYPES,
-        default=F2F
+        choices=APPOINTMENT_TYPES
         )
     location = models.CharField(
         max_length=255, 

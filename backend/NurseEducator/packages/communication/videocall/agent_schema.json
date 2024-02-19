@@ -1,0 +1,41 @@
+{
+    "json_schema":{
+        "title": "Add New Host",
+        "type": "object",
+        "properties": {
+            "host_object_uuid": {
+                "type": "string",
+                "title": "Host Object UUID"
+            },
+            "provider_config": {
+                "type": "string",
+                "title": "Config",
+                "default": {}
+            },
+            "host_name": {
+                "type": "string",
+                "title": "Host Name"
+            }
+        }
+    },
+    "ui_schema": {
+        "host_object_uuid": {
+            "ui:widget": "TextareaFieldWidget",
+            "ui:placeholder": "Enter Host Object UUID",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "provider_config": {
+            "ui:widget": "TextareaFieldWidget",
+            "ui:placeholder": "Enter Config",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "host_name": {
+            "ui:widget": "TextareaFieldWidget",
+            "ui:placeholder": "Enter Host Name"
+        }
+    }
+}

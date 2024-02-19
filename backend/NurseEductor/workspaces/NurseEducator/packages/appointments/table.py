@@ -1,3 +1,5 @@
+import requests
+
 from ...packages.crud.table.base import ModelTable
 from ...packages.crud.table.column import ModelCol, StringCol
 
@@ -5,35 +7,49 @@ from .forms import AppointmentFormBase
 from .details import AppointmentBaseDeatil
 
 from zelthy.apps.object_store.models import ObjectStore
+from zelthy.apps.shared.tenancy.templatetags.zstatic import zstatic
 
 from django.db.models import Q
+
+from zelthy.core.utils import get_package_url, get_current_request
 
 
 class AppointmentTableBase(ModelTable):
 
+    def __init__(self, request=None, **kwargs):
+        
+        appointment_mediums = kwargs.get("crud_view_instance").appointment_mediums
+        medium_keys = []
+        for medium in appointment_mediums:
+            medium_keys.append(medium[0])
+        if 'f2f' in medium_keys:
+            AppointmentTableBase.location = ModelCol(display_as="Location", sortable=True,  searchable=True)
+            AppointmentTableBase.Meta.fields.append("location")
+        if 'audio' in medium_keys:
+            AppointmentTableBase.mobile = ModelCol(display_as="Contact Number", sortable=True,  searchable=True)
+            AppointmentTableBase.Meta.fields.append("mobile")
+
+        super().__init__(request, **kwargs)
+
     id = StringCol(name="id", display_as="Id", sortable=True, searchable=True)
-
-    title = ModelCol(display_as="Appointment Name", sortable=True, searchable=True)
-
-    description = ModelCol(display_as="Appointment Details", sortable=True, searchable=True)
 
     participants = StringCol(name="participants", display_as="Participants")
 
     hosts = StringCol(name="hosts", display_as="Host")
 
-    start_time = ModelCol(display_as="Appointment Start Time", sortable=True)
+    start_time = ModelCol(display_as="Appointment Time", sortable=True, searchable=True)
 
     duration = ModelCol(display_as="Duration (mins)", sortable=True)
 
-    appointment_type = StringCol(name="appointment_type", display_as="Appointment Type", sortable=True, searchable=True)
-
-    coordinator = ModelCol(display_as="Coordinator", sortable=True, searchable=True)
+    appointment_type = ModelCol(name="appointment_type", display_as="Appointment Type", sortable=True, searchable=True)
 
     updated_state = StringCol(name="updated_state", display_as="Status", sortable=True, searchable=True)
 
-    participant_video_call_details = StringCol(name="participant_video_call_details", display_as="Participant Video Call details")
+    title = ModelCol(display_as="Appointment Name", sortable=True, searchable=True)
 
-    host_video_call_details = StringCol(name="host_video_call_details", display_as="Host Video Call details")
+    description = ModelCol(display_as="Appointment Details", sortable=True, searchable=True)
+
+    coordinator = ModelCol(display_as="Coordinator", sortable=True, searchable=True)
 
     table_actions = []
     
@@ -41,33 +57,29 @@ class AppointmentTableBase(ModelTable):
         {
             "name": "Edit",
             "key": "edit",
-            "description": "Edit Appointment",
+            "description": "Reschedule Appointment",
             "type": "form",
             "form": AppointmentFormBase,  # Specify the form to use for editing
             "roles": [],  # Specify roles that can perform the action
         }
     ]
 
+    def can_perform_row_action_edit(self, request, obj):
 
-    def participant_video_call_details_getval(self, obj):
-        result = ""
-        if obj.video_call_details:
-            for participant in obj.video_call_details.get('participants', []):
-                if result:
-                    result = result+" , "
-                result = result + " \n"+ participant.get('name')+":<a target='_blank' href='"+participant.get('join_url')+"'> Join</a>"
-        else:
-            result = "NA"
-        return result
+        try:
+            if obj.latest_state == 'scheduled':
+                return True
+            return False
+        except:
+            current_status = "NA"
+            workflow_obj = self.crud_view_instance.get_workflow_obj(object_instance=obj)
+            if workflow_obj:
+                workflow_status = self.get_workflow_current_status(workflow_obj)
+                current_status = workflow_status.get("status_label")
 
-
-    def host_video_call_details_getval(self, obj):
-        result = ""
-        if obj.video_call_details:
-            result = "<a href='"+obj.video_call_details.get('start_url', '')+"' target='_blank'>Join</a>"
-        else:
-            result = "NA"
-        return result
+                if current_status.lower() == 'scheduled':
+                    return True
+            return False
 
 
     def updated_state_Q_obj(self, search_term):
@@ -81,20 +93,6 @@ class AppointmentTableBase(ModelTable):
     def description_Q_obj(self, search_term):
         return Q(description__icontains=search_term)
 
-
-    def appointment_type_Q_obj(self, search_text):
-
-        q_obj = Q()
-        try:
-            mediums = self.crud_view_instance.appointment_mediums
-            for medium in mediums:
-                if search_text.lower() in medium[1].lower():
-                    q_obj = q_obj | Q(appointment_type=medium[0])
-        except:
-            pass
-            
-        return q_obj
-    
 
     def id_Q_obj(self, search_term):
         try:
@@ -122,10 +120,6 @@ class AppointmentTableBase(ModelTable):
 
     def updated_state_getval(self, obj):
         return obj.updated_state
-
-
-    def appointment_type_getval(self, obj):
-        return obj.get_appointment_type_display()
 
 
     def id_getval(self, obj):
@@ -161,6 +155,7 @@ class AppointmentTableBase(ModelTable):
             'id',
             'title',
             'description',
+            'appointment_type',
             'start_time',
             'duration',
             'coordinator'

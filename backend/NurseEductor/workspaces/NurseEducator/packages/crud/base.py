@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from zelthy.core.api import get_api_response
 from ...packages.frame.decorator import add_frame_context
 from .mixin import CrudRequestMixin
+from .forms import BaseForm
 
 
 class BaseCrudView(TemplateView, CrudRequestMixin):
@@ -41,6 +42,7 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
     def get_detail_obj(self, table_obj):
         if hasattr(table_obj.Meta, "detail_class"):
             detail_class = table_obj.Meta.detail_class
+
             return detail_class(
                 request=self.request, crud_view_instance=self, table_obj=table_obj
             )
@@ -66,7 +68,7 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
     def get_row_actions(self, table_obj):
         return table_obj.row_actions
 
-    def get_form(self, data=None, instance=None):
+    def get_form(self, data=None, files=None, instance=None):
         action_type = self.request.GET.get("action_type")
         if action_type == "row":
             pk = self.request.GET.get("pk")
@@ -98,9 +100,11 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
             )
             if not can_perform_action:
                 raise PermissionDenied(f"Can not perform action {row_action['name']}")
-            return action_form(data=data, instance=instance, crud_view_instance=self)
+            return action_form(
+                data=data, files=files, instance=instance, crud_view_instance=self
+            )
 
-        return self.form(crud_view_instance=self)
+        return self.form(data=data, files=files, crud_view_instance=self)
 
     def get_form_errors(self, form):
         form_errors = json.loads(form.errors.as_json())
@@ -119,7 +123,6 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
     @add_frame_context
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form()
 
         if self.request.GET.get("action_type"):
             return context
@@ -142,9 +145,11 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
         context.update(table_view_context)
 
         # Get Detail View Context
-        detail_object = self.get_detail_obj(table_obj)
-        detail_view_context = detail_object.get_context_data(context, **kwargs)
-        context.update(detail_view_context)
+        view = self.get_request_view()
+        if view == "detail":
+            detail_object = self.get_detail_obj(table_obj)
+            detail_view_context = detail_object.get_context_data(context, **kwargs)
+            context.update(detail_view_context)
 
         return context
 
@@ -234,7 +239,44 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
         form_type = request.GET.get("form_type")
 
         if form_type == "create_form":
-            form = self.form(request.POST, request.FILES, crud_view_instance=self)
+            form = self.get_form(data=request.POST, files=request.FILES)
+
+            form_action = request.GET.get("form_action")
+
+            if form_action == "sync_form":
+                json_schema, ui_schema = form.convert_model_form_to_json_schema()
+
+                return get_api_response(
+                    success=True,
+                    response_content={
+                        "is_multistep": False,
+                        "form": {
+                            "json_schema": json_schema,
+                            "ui_schema": ui_schema,
+                            "form_data": request.POST.dict(),
+                        },
+                    },
+                    status=200,
+                )
+
+            if form_action == "fetch_autcomplete_options":
+                field_name = request.GET.get("field_name")
+                search_query = request.GET.get("search_query")
+
+                autocomplete_options_method = getattr(
+                    form, f"get_{field_name}_autocomplete_options", None
+                )
+                autocomplete_options = []
+                if autocomplete_options_method:
+                    autocomplete_options = autocomplete_options_method(
+                        request, search_query, request.POST
+                    )
+
+                return get_api_response(
+                    success=True,
+                    response_content={"autocomplete_options": autocomplete_options},
+                    status=200,
+                )
 
             if form.is_valid():
                 object_instance = form.save()
@@ -254,7 +296,27 @@ class BaseCrudView(TemplateView, CrudRequestMixin):
         if action_type == "row":
             if form_type == "row_action_form":
                 obj = self.get_row_model_obj()
-                form = self.get_form(data=request.POST, instance=obj)
+                form = self.get_form(
+                    data=request.POST, files=request.FILES, instance=obj
+                )
+                form_action = request.GET.get("form_action")
+
+                if form_action == "sync_form":
+                    json_schema, ui_schema = form.convert_model_form_to_json_schema()
+
+                    return get_api_response(
+                        success=True,
+                        response_content={
+                            "is_multistep": False,
+                            "form": {
+                                "json_schema": json_schema,
+                                "ui_schema": ui_schema,
+                                "form_data": request.POST.dict(),
+                            },
+                        },
+                        status=200,
+                    )
+
                 if form.is_valid():
                     form.save()
                     return get_api_response(
@@ -306,8 +368,13 @@ class BaseFormOnlyView(TemplateView, CrudRequestMixin):
 
         return None
 
-    def get_form(self):
-        return self.form(crud_view_instance=self)
+    def get_form(self, data=None, files=None, instance=None):
+        kwargs = {"data": data, "files": files, "crud_view_instance": self}
+
+        if issubclass(self.form, BaseForm):
+            kwargs["instance"] = instance
+
+        return self.form(**kwargs)
 
     def get_form_errors(self, form):
         form_errors = json.loads(form.errors.as_json())
@@ -315,18 +382,6 @@ class BaseFormOnlyView(TemplateView, CrudRequestMixin):
         for field_name, errors in form_errors.items():
             res[field_name] = {"__errors": [error["message"] for error in errors]}
         return res
-
-    def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instanciating the form.
-        """
-        kwargs = {'initial': self.get_initial()}
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-        return kwargs
 
     @add_frame_context
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -336,6 +391,10 @@ class BaseFormOnlyView(TemplateView, CrudRequestMixin):
         context["page_title"] = self.page_title
 
         return context
+
+    def get_success_url(self):
+        success_url = getattr(self, "success_url", None)
+        return success_url
 
     def get(self, request, *args, **kwargs):
         action = self.get_request_action(request)
@@ -364,7 +423,44 @@ class BaseFormOnlyView(TemplateView, CrudRequestMixin):
         form_type = request.GET.get("form_type")
 
         if form_type == "create_form":
-            form = self.form(request.POST, request.FILES, crud_view_instance=self)
+            form = self.get_form(data=request.POST, files=request.FILES)
+
+            form_action = request.GET.get("form_action")
+
+            if form_action == "sync_form":
+                json_schema, ui_schema = form.convert_model_form_to_json_schema()
+
+                return get_api_response(
+                    success=True,
+                    response_content={
+                        "is_multistep": False,
+                        "form": {
+                            "json_schema": json_schema,
+                            "ui_schema": ui_schema,
+                            "form_data": request.POST.dict(),
+                        },
+                    },
+                    status=200,
+                )
+
+            if form_action == "fetch_autcomplete_options":
+                field_name = request.GET.get("field_name")
+                search_query = request.GET.get("search_query")
+
+                autocomplete_options_method = getattr(
+                    form, f"get_{field_name}_autocomplete_options", None
+                )
+                autocomplete_options = []
+                if autocomplete_options_method:
+                    autocomplete_options = autocomplete_options_method(
+                        request, search_query, request.POST
+                    )
+
+                return get_api_response(
+                    success=True,
+                    response_content={"autocomplete_options": autocomplete_options},
+                    status=200,
+                )
 
             if form.is_valid():
                 object_instance = form.save()
@@ -372,7 +468,7 @@ class BaseFormOnlyView(TemplateView, CrudRequestMixin):
                 if workflow_obj:
                     workflow_obj.execute_transition(workflow_obj.Meta.on_create_status)
 
-                success_url = getattr(self, "success_url", None)
+                success_url = self.get_success_url()
                 response_content = {
                     "message": "Form Saved",
                 }

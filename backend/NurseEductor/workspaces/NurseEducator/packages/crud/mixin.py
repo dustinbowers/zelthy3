@@ -93,14 +93,16 @@ class FormsMixin(object):
             if custom_field.required:
                 json_schema["required"].append(custom_field_name)
 
-        if hasattr(self, "_meta"):
+        meta_class = getattr(self, "_meta", getattr(self, "Meta", None))
+
+        if meta_class:
             # Extra UI Schema and JSON Schema
-            extra_ui_schema = getattr(self._meta, "extra_ui_schema", {})
-            extra_schema = getattr(self._meta, "extra_schema", {})
+            extra_ui_schema = getattr(meta_class, "extra_ui_schema", {})
+            extra_schema = getattr(meta_class, "extra_schema", {})
 
             # Fields Order
-            if self._meta.order:
-                field_order = self._meta.order
+            if getattr(meta_class, "order", None):
+                field_order = meta_class.order
                 extra_ui_schema.update({"ui:order": field_order})
 
             json_schema.update(extra_schema)

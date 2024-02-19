@@ -1,0 +1,36 @@
+{% extends 'crud/detail.html' %}
+{% load zstatic %}
+{% block after_general_details_content %}
+
+    <h3>Appointments</h3>
+
+    <table>
+        <thead>
+            <tr>
+            <th>Appointment ID</th>
+            <th>Name</th>
+            <th>Details</th>
+            <th>Nurse Educator</th>
+            <th>Start Time</th>
+            <th>Duration (Mins)</th>
+            <th>Type</th>
+            <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in appointments_data %}
+            <tr>
+                <td>{{ item.get_id }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.hosts }}</td>
+                <td>{{ item.start_time }}</td>
+                <td>{{ item.duration }}</td>
+                <td>{{ item.appointment_type }}</td>
+                <td>{{ item.app_status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %} 

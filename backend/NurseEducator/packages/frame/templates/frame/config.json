@@ -1,0 +1,59 @@
+{
+    "menu": [{
+        "url": "/patients/",
+        "icon": "",
+        "name": "Patients"
+    },{
+        "url": "/patients/",
+        "icon": "",
+        "name": "Patients",
+        "children": [{
+            "url": "/patients/",
+            "icon": "",
+            "name": "Patients"
+            
+        },{
+            "url": "/dummy.html",
+            "icon": "",
+            "name": "Patients"
+            
+        },{
+            "url": "/patients/",
+            "icon": "",
+            "name": "Patients"
+            
+        },{
+            "url": "/patients/",
+            "icon": "",
+            "name": "Patients"
+            
+        }]
+    },{
+        "url": "/patients/",
+        "icon": "",
+        "name": "Patients"
+    }],
+    "config":{
+        "color":{
+            "primary":"#DDE2E5",
+            "secondary":"#E1D6AE",
+            "accent":"#DDE2E5",
+            "background":"#FFFFFF",
+            "typography":"#212429",
+            "header":"#FFFFFF",
+            "headerBorder":"#DDE2E5",
+            "sidebar":"#E1D6AE"
+         }
+    },
+    "profile": {
+        "name": "John Doe",
+        "roles": [{
+            "url": "/roles/",
+            "label": "Roles 1"
+        },{
+            "url": "/roles2/",
+            "label": "Roles 2"
+        }],
+        "current_role": "PSP Executive"
+    }
+}

@@ -14,6 +14,18 @@ class AppointmentFormBase(BaseForm):
         placeholder="Enter Appointment Start Time",
         required=True,
         required_msg="Appointment Start Time is required",
+        extra_ui_schema={
+            "ui:dateOptions": {
+                "min": datetime.today().strftime('%Y-%m-%d')
+            },
+            "ui:timeOptions": {
+                "minuteStep": 15,
+                "format": "hh:mm a",  # time format 'HH:mm' for 24 hours, 'hh:mm a' for 12 hours
+                "min": 7,  # min time 8am
+                "max": 19,  # max time 10pm
+                "showSecond": False  # Default is False
+            }
+        }
     )
 
     duration = ModelField(
@@ -27,17 +39,20 @@ class AppointmentFormBase(BaseForm):
     )
 
     participant = forms.MultipleChoiceField(
-        label="Participants"
+        label="Participants",
+        required=True
     )
 
     host = forms.ChoiceField(
-        label="Hosts"
+        label="Hosts",
+        required=True
     )
 
     appointment_type = ModelField(
         label="Appointment Type",
         required=True,
-        required_msg="Appointment Type is required"
+        required_msg="Appointment Type is required",
+        sync_enabled=True
     )
 
     title = ModelField(
@@ -50,8 +65,7 @@ class AppointmentFormBase(BaseForm):
     description = ModelField(
         label="Appointment Details",
         placeholder="Enter Appointment Details",
-        required=True,
-        required_msg="Appointment Details is required"
+        required=False
     )
 
     # custom_field = CustomSchemaField(
@@ -71,9 +85,16 @@ class AppointmentFormBase(BaseForm):
 
         super(AppointmentFormBase, self).__init__(*args, **kwargs)
         # print(self.crud_view_instance.get_participants())
+        if self.crud_view_instance.participant_single_select:
+            self.fields['participant'] = forms.ChoiceField(label="Participants", required=True)
         self.fields['participant'].choices = self.crud_view_instance.get_participants()
         self.fields['host'].choices = self.crud_view_instance.get_hosts()
         self.fields['appointment_type'].choices = self.crud_view_instance.appointment_mediums
+        traditional_fields, model_fields, to_update = self.crud_view_instance.get_appointment_type_on_change(self.data, self.fields)
+
+        if to_update:
+            self.fields.update(traditional_fields)
+            self.declared_fields.update(model_fields)
 
         # address_type_mapper = {
         #     'open': forms.CharField(label='Address'),
@@ -86,8 +107,8 @@ class AppointmentFormBase(BaseForm):
 
     def save(self, commit=True):
         instance = super(AppointmentFormBase, self).save(commit=False)
-        instance.hosts = [self.cleaned_data.get('host')] if self.cleaned_data.get('host') else []
-        instance.participants = self.cleaned_data.get('participant', [])
+        instance.hosts = self.cleaned_data.get('host') if type(self.cleaned_data.get('host')) == list else [self.cleaned_data.get('host')]
+        instance.participants = self.cleaned_data.get('participant') if type(self.cleaned_data.get('participant')) == list else [self.cleaned_data.get('participant')]
         instance.coordinator = self.crud_view_instance.request.user if not self.crud_view_instance.request.user.is_anonymous else None
         instance.save()
         self.crud_view_instance.post_create(instance, form_data=self.cleaned_data)
@@ -97,11 +118,13 @@ class AppointmentFormBase(BaseForm):
     class Meta:
         model = None
         order = [
-            "start_time",
-            "duration",
             "participant",
             "host",
+            "start_time",
+            "duration",
             "appointment_type",
+            "location",
+            "mobile",
             "title",
             "description"
         ]
@@ -113,6 +136,7 @@ class EditAppointmentFormBase(BaseForm):
         label="Appointment Type",
         required=True,
         required_msg="Appointment Type is required",
+        sync_enabled=True
     )
 
     start_time = ModelField(
@@ -138,7 +162,18 @@ class EditAppointmentFormBase(BaseForm):
     def __init__(self, *args, **kwargs):
         super(EditAppointmentFormBase, self).__init__(*args, **kwargs) 
         self.fields['host'].choices = self.crud_view_instance.get_hosts()
-        self.fields['host'].initial = self.instance.hosts
+        self.fields['host'].initial = str(self.instance.hosts[0]) if self.instance.hosts else None
+
+        if not self.data:
+            self.data = {
+                'appointment_type': self.instance.appointment_type
+            }
+
+        traditional_fields, model_fields, to_update = self.crud_view_instance.get_appointment_type_on_change(self.data, self.fields)
+
+        if to_update:
+            self.fields.update(traditional_fields)
+            self.declared_fields.update(model_fields)
 
     def save(self, commit=True):
         instance = super(EditAppointmentFormBase, self).save(commit=False)
@@ -150,8 +185,10 @@ class EditAppointmentFormBase(BaseForm):
     class Meta:
         model = None
         order = [
+            "host",
             "start_time",
             "duration",
-            "host",
-            "appointment_type"
+            "appointment_type",
+            "location",
+            "mobile"
         ]

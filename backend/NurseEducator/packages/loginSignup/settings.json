@@ -1,0 +1,18 @@
+{
+    "version": "1.0.0",
+    "modules": [ 
+        {
+            "name": "workflow",
+            "path": "workflow"
+        }
+    ],
+    "app_routes": [
+        {
+            "re_path": "^v2/login",
+            "module": "workflow",
+            "url": "urls"
+        }
+    ],
+    "package_routes": [],
+    "dependencies":[]    
+}

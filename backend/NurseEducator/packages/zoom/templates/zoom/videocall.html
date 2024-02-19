@@ -1,0 +1,176 @@
+{% extends 'frame/_base.html' %}
+
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- For Client View -->
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.18.2/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.18.2/css/react-select.css" />
+    <style>
+
+        #zmmtg-root{
+            display:none;
+            min-width:0 !important;
+            
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <main>
+        <!-- For Component View -->
+        <div id="meetingSDKElement">
+            <!-- Zoom Meeting SDK Rendered Here -->
+        </div>
+    </main>
+    <!-- For Component and Client View -->
+    <script src="https://source.zoom.us/2.18.2/lib/vendor/react.min.js" rel="preload"></script>
+    <script src="https://source.zoom.us/2.18.2/lib/vendor/react-dom.min.js" rel="preload"></script>
+    <script src="https://source.zoom.us/2.18.2/lib/vendor/redux.min.js" rel="preload"></script>
+    <script src="https://source.zoom.us/2.18.2/lib/vendor/redux-thunk.min.js" rel="preload"></script>
+    <script src="https://source.zoom.us/2.18.2/lib/vendor/lodash.min.js" rel="preload"></script>
+
+    <!-- For Client View -->
+    <script src="https://source.zoom.us/zoom-meeting-2.18.2.min.js" rel="preload"></script>
+
+    <!-- For Component View -->
+    <script src="https://source.zoom.us/2.18.2/zoom-meeting-embedded-2.18.2.min.js" rel="preload"></script> 
+    <script>
+        // FOR CLIENT VIEW
+        // --------------> START <--------------
+        ZoomMtg.setZoomJSLib("https://source.zoom.us/2.18.2/lib", "/av");
+
+        ZoomMtg.preLoadWasm();
+        ZoomMtg.prepareWebSDK();
+        // loads language files, also passes any error messages to the ui
+        ZoomMtg.i18n.load("en-US");
+        ZoomMtg.i18n.reload("en-US");
+        // --------------> END <--------------
+
+        $(document).ready(function(){
+            getMeetingConfig()
+        })
+        
+        function getMeetingConfig() {
+            const client = ZoomMtgEmbedded.createClient();
+            // client.init('US-en','CDN')
+
+            let meetingSDKElement = document.getElementById("meetingSDKElement");
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const actor = urlParams.get("actor");
+            const participantID = urlParams.get("joinee_id");
+            let data;
+            if (actor === "host") {
+                data = {
+                meeting_id: "{{ meeting_number }}",
+                action: "start_meeting",
+                };
+            } else {
+                data = {
+                meeting_id: "{{ meeting_number }}",
+                action: "join_meeting",
+                participant_id: participantID,
+                };
+            }
+            $.ajax({
+                url: `/zoom/videocall/api/?action=${data.action}`,
+                type: "POST",
+                data: {"data":JSON.stringify(data), 'csrfmiddlewaretoken' : "{{ csrf_token }}"},
+                success: function (meetingData) {
+                    console.log(meetingData)
+
+                    startMeeting(JSON.parse(meetingData).response)
+                }
+            });
+        }
+        // FOR CLIENT VIEW
+        function startMeeting(data) {
+            document.getElementById("zmmtg-root").style.display = "block";
+            ZoomMtg.init({
+                isSupportChat:false,
+                defaultView:"gallery",
+                leaveUrl: "/communication/videocall/meeting/?meeting_id={{ meeting_number }}&action=end_meeting",
+                success: (success) => {
+                    ZoomMtg.join(data.zak ? {
+                        signature: data.signature,
+                        sdkKey: data.sdk_key,
+                        meetingNumber: data.meetingNumber,
+                        // password: data.password,
+                        userName: data.userName,
+                        userEmail: data.userEmail ? data.userEmail : "",
+                        // tk: registrantToken,
+                        zak: data.zak,
+                        success: (success) => {
+                        console.log(success);
+                        },
+                        error: (error) => {
+                        console.log(error);
+                        },
+                    }
+                        :  {
+                            signature: data.signature,
+                            sdkKey: data.sdk_key,
+                            meetingNumber: data.meetingNumber,
+                            // password: data.password,
+                            userName: data.userName,
+                            userEmail: data.userEmail ? data.userEmail : "",
+                            // tk: registrantToken,
+                        success: (success) => {
+                        console.log(success);
+                        },
+                        error: (error) => {
+                        console.log(error);
+                        },
+                    }
+                    );
+                },
+                error: (error) => {
+                console.log(error);
+                },
+            });
+            }
+        //FOR COMPONENT VIEW
+        // function startMeeting(data) {
+        // client
+        //     .init({ zoomAppRoot: meetingSDKElement, language: "en-US", leaveUrl: 'https://www.google.com' })
+        //     .then(() => {
+        //     client
+        //         .join(
+        //         //start meeting
+        //         data.zak
+        //             ?
+        //              {
+        //                 signature: data.signature,
+        //                 sdkKey: data.sdk_key,
+        //                 meetingNumber: data.meetingNumber,
+        //                 password: data.password,
+        //                 userName: data.userName,
+        //                 userEmail: data.userEmail ? data.userEmail : "",
+        //                 // tk: registrantToken,
+        //                 zak: data.zak ? data.zak : "",
+        //             }
+        //             : // join meeting
+        //             {
+        //                 signature: data.signature,
+        //                 sdkKey: data.sdk_key,
+        //                 meetingNumber: data.meetingNumber,
+        //                 password: data.password,
+        //                 userName: data.userName,
+        //                 userEmail: data.userEmail ? data.userEmail : "",
+        //                 // tk: registrantToken,
+        //             }
+        //         )
+        //         .then(() => {
+        //         console.log("joined succesfully");
+        //         })
+        //         .catch((error) => {
+        //         console.log(error);
+        //         });
+        //     })
+        //     .catch((error) => {
+        //     console.log(error);
+        //     });
+        // }
+        
+
+    </script>
+{% endblock %}

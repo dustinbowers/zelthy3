@@ -1,0 +1,41 @@
+{
+    "json_schema":{
+        "title": "Add Nice Agent",
+        "type": "object",
+        "properties": {
+            "user": {
+                "type": "integer",
+                "title": "User"
+            },
+            "config": {
+                "type": "string",
+                "title": "Config",
+                "default": {}
+            },
+            "is_active":{
+                "type":"boolean",
+                "title":"Is Active",
+                "default":true
+            }
+        }
+    },
+    "ui_schema": {
+        "user": {
+            "ui:widget": "SelectFieldWidget",
+            "ui:placeholder": "Enter User",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "config": {
+            "ui:widget": "TextareaFieldWidget",
+            "ui:placeholder": "Enter Config",
+            "ui:errorMessages": {
+                "required": "This field is required."
+            }
+        },
+        "is_active":{
+            "ui:widget":"CheckboxFieldWidget"
+        }
+    }
+}

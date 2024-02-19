@@ -1,0 +1,90 @@
+{% extends 'frame/_base.html' %}
+{% load crispy_forms_tags %}
+{% load zstatic %}
+
+{% block head %}
+<head>
+<title>{{page_title}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Source+Code+Pro:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-toast-plugin@1.3.2/dist/jquery.toast.min.css">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-toast-plugin@1.3.2/dist/jquery.toast.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<link rel="stylesheet" href="{% zstatic 'packages/crud/style.css' %}">
+</head>
+{% endblock %}
+
+{% block page_content %}
+
+<form method="post">
+    {% csrf_token %}
+</form>
+<style>
+    /* Center the form */
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* Responsive layout using Tailwind CSS breakpoints */
+    @media screen and (min-width: 640px) {
+      /* Small devices (sm): 640px and up */
+      .container {
+        max-width: 90%;
+        padding: 20px;
+      }
+    }
+
+    @media screen and (min-width: 768px) {
+      /* Medium devices (md): 768px and up */
+      .container {
+        max-width: 75%;
+        padding: 20px;
+      }
+    }
+
+    @media screen and (min-width: 1024px) {
+      /* Large devices (lg): 1024px and up */
+      .container {
+        max-width: 60%;
+        padding: 20px;
+      }
+    }
+</style>
+
+<div class="container">
+    <div class="zelthy-dynamic-form" style="height: 100%"> </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+       ZelthyRJSF(".zelthy-dynamic-form", {
+                        "get_data": {
+                            "is_api_based": true,
+                            "url": `./?action=initialize_form`,
+                            "static_config": {},
+                        },
+                        "post_data": {
+                            "http_method": "POST",
+                            "url": `./?form_type=create_form`,
+                            "payload_type": "FORMDATA"
+                        }
+                    })
+    })
+</script>
+
+<script>
+    var csrf_token = "{{ csrf_token }}";
+</script>
+<script src="{% zstatic 'packages/crud/build.v1.0.21.min.js' %}"></script>
+
+{% endblock %}

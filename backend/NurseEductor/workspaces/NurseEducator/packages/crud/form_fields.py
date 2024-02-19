@@ -13,6 +13,8 @@ class ModelField:
         readonly=False,
         hidden=False,
         initial=None,
+        sync_enabled=False,
+        autocomplete={},
         extra_schema={},
         extra_ui_schema={},
     ):
@@ -32,6 +34,9 @@ class ModelField:
             properties.update(hidden=True)
         if readonly:
             properties.update(readonly=True)
+        properties.update(sync_enabled=sync_enabled)
+        properties.update(autocomplete=autocomplete)
+
         self.extra_schema = extra_schema
         self.extra_ui_schema = extra_ui_schema
         self.properties = properties

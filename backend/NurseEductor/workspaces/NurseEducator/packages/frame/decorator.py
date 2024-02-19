@@ -96,20 +96,3 @@ def apply_frame_routing(view_func_or_class):
             raise ImproperlyConfigured("No frame defined for this user role.")
 
     return _wrapped_view
-
-
-def apply_frame_routing_with_enrolment(view_func_or_class):
-
-    @wraps(view_func_or_class)
-    def _wrapped_view(instance, *args, **kwargs):
-        request = get_current_request()
-        user_role = get_current_role()
-        try:
-            frame_config = get_frame_config(request, user_role)
-            menu = frame_config.get("menu", [])
-            if menu:
-                return redirect(menu[0]["url"])
-        except UserRoleModel.frame.RelatedObjectDoesNotExist:
-            raise ImproperlyConfigured("No frame defined for this user role.")
-
-    return _wrapped_view

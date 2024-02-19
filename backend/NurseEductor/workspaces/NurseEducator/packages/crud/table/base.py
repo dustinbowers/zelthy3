@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 import json
+from collections import OrderedDict
+
 
 from django.db.models import Q
 from django.db import models
@@ -10,10 +12,12 @@ from rest_framework import serializers
 
 from zelthy.core.utils import get_current_role
 from zelthy.apps.dynamic_models.fields import ZForeignKey, ZOneToOneField
+from zelthy.core.tasks import zelthy_task_executor
+from zelthy.core.api import get_api_response
 
 from .serializers import StringRelatedMeta
 from .column import ModelCol, StringCol, NumericCol, SelectCol, field_map
-from .utils import process_date_range
+from .utils import process_date_range, process_datetime_range_with_timezone
 from ..mixin import CrudRequestMixin
 
 
@@ -31,7 +35,8 @@ class ModelTable(CrudRequestMixin):
     custom_fields = []
 
     def __init__(self, request=None, **kwargs):
-        self.user_role = get_current_role()
+        current_user_role = get_current_role()
+        self.user_role = current_user_role or kwargs.get("user_role")
         self.request = request
         self.crud_view_instance = kwargs.get("crud_view_instance")
         self.model = getattr(
@@ -47,7 +52,21 @@ class ModelTable(CrudRequestMixin):
         explicit_col_names = []
         not_allowed_col_names = []
 
-        for attr_name, attr_value in type(self).__dict__.items():
+        # Walk through the MRO to get attributes from both parent and child classes
+        table_class_attrs = OrderedDict()
+        for cls in reversed(self.__class__.mro()):
+            # Use dir() to get all attributes of the class
+            class_attributes = [
+                attr for attr in cls.__dict__ if not attr.startswith("__")
+            ]
+
+            # Use getattr() to get the values of the attributes
+            attribute_values = {attr: getattr(cls, attr) for attr in class_attributes}
+
+            # Update the dictionary with the values
+            table_class_attrs.update(attribute_values)
+
+        for attr_name, attr_value in table_class_attrs.items():
             try:
                 if attr_value.__class__ == ModelCol:
                     attr_value.update_model_field(self.model._meta.get_field(attr_name))
@@ -205,9 +224,11 @@ class ModelTable(CrudRequestMixin):
                     new_row[col] = col_getval(obj)
                 else:
                     new_row[col] = serialized[col]
+
+                new_row[col] = new_row[col] if new_row[col] is not None else "NA"
+
             new_row["pk"] = obj.pk
             new_row["row_actions"] = self.get_row_actions(self.request, obj)
-            print(row)
             new_row["field_title"] = str(obj)
             if workflow_obj:
                 new_row["workflow_status"] = self.get_workflow_current_status(
@@ -236,6 +257,16 @@ class ModelTable(CrudRequestMixin):
             try:
                 date_query = json.loads(search_query)
                 date_range = process_date_range(date_query["start"], date_query["end"])
+                return Q(**{f"{col}__range": date_range})
+            except:
+                return Q()
+
+        elif col_type == "datetime":
+            try:
+                date_query = json.loads(search_query)
+                date_range = process_datetime_range_with_timezone(
+                    date_query["start"], date_query["end"]
+                )
                 return Q(**{f"{col}__range": date_range})
             except:
                 return Q()
@@ -272,7 +303,6 @@ class ModelTable(CrudRequestMixin):
         """
         Returns a queryset of the model where any of its fields contains the query_value.
         """
-        print("##Nrdjkmk")
         for field in objects.model._meta.fields:
             for column in self.table_metadata["columns"]:
                 if field.name == column["name"]:
@@ -344,7 +374,11 @@ class ModelTable(CrudRequestMixin):
         sort_by_col = request.GET.get("order[0][column]", None)
         if sort_by_col:
             sort_type = request.GET.get("order[0][dir]")
-            sort_col = self.get_columns()[int(sort_by_col) - 1]
+            col_index = int(sort_by_col)
+            row_selector = getattr(self.Meta, "row_selector", {})
+            row_selector_enabled = row_selector.get("enabled", False)
+            sort_col_index = col_index - 1 if row_selector_enabled else col_index
+            sort_col = self.get_columns()[sort_col_index]
             objects = self.get_sorted_objects(objects, sort_col, sort_type)
             return objects
         if not objects.query.order_by:
@@ -421,9 +455,65 @@ class ModelTable(CrudRequestMixin):
 
         return context
 
+    def initiate_export(self, request):
+        try:
+            request_data = {
+                "path": request.path,
+                "user_id": request.user.id if request.user else None,
+                "user_role_id": self.user_role.id if self.user_role else None,
+                "params": request.GET,
+            }
+            export_metadata = {
+                "request_data": request_data,
+                "tenant_name": request.tenant.name,
+            }
+
+            # TODO: Change this to API
+            from ....packages.frame.downloads.models import ExportJob
+
+            current_user_role = get_current_role()
+            export_job_obj = ExportJob.objects.create(
+                user=request.user
+                if current_user_role.name != "AnonymousUsers"
+                else None,
+                export_type="xlsx",
+                export_metadata=export_metadata,
+            )
+            task_res = zelthy_task_executor.delay(
+                request.tenant.name,
+                "packages.crud.downloads.tasks.export_table",
+                request_data,
+                export_job_obj.id,
+            )
+            export_job_obj.celery_task_id = task_res.id
+            export_job_obj.save()
+            return True, export_job_obj.celery_task_id
+        except Exception as e:
+            return False, str(e)
+
     def get(self, request, *args, **kwargs):
         action = self.get_request_action(request)
 
         if action == "get_table_data":
             data = self.get_table_data()
             return JsonResponse(data)
+
+        elif action == "export_table":
+            success, result = self.initiate_export(request)
+            if success:
+                return get_api_response(
+                    success=success,
+                    response_content={
+                        "task_id": result,
+                        "message": "Download initiated successfully",
+                    },
+                    status=200,
+                )
+
+            return get_api_response(
+                success=success,
+                response_content={
+                    "message": "Unable to initiate download. Please try again later.",
+                },
+                status=400,
+            )

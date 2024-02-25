@@ -9,9 +9,6 @@ from django.conf import settings
 from django.db import connection
 from django.http import Http404
 
-# from zelthy_enterprise.apps.auditlog.registry import auditlog
-
-from zelthy_enterprise.apps.auditlog.registry import auditlog
 from zelthy.apps.dynamic_models.models import DynamicModelBase
 
 # from zelthy.core.pluginbase1 import PluginBase, PluginSource
@@ -292,13 +289,16 @@ class Workspace:
                 continue
             split = m.split(".")[2:]
             module = self.plugin_source.load_plugin(".".join(split))
-            for name, obj in inspect.getmembers(module):
-                if (
-                    isinstance(obj, type)
-                    and issubclass(obj, DynamicModelBase)
-                    and obj != DynamicModelBase
-                ):
-                    auditlog.register(obj)
+            if "zelthy_enterprise.apps.auditlog" in settings.ENTERPRISE_APPS:
+                from zelthy_enterprise.apps.auditlog.registry import auditlog
+
+                for name, obj in inspect.getmembers(module):
+                    if (
+                        isinstance(obj, type)
+                        and issubclass(obj, DynamicModelBase)
+                        and obj != DynamicModelBase
+                    ):
+                        auditlog.register(obj)
         return
 
     def sync_tasks(self, tenant_name) -> None:

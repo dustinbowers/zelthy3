@@ -146,7 +146,7 @@ class LogEntryManager(models.Manager):
         :return: The new log entry or `None` if there were no changes.
         :rtype: LogEntry
         """
-        from auditlog.cid import get_cid
+        from zelthy_enterprise.apps.auditlog.cid import get_cid
 
         pk = self._get_pk_value(instance)
         if changed_queryset:
@@ -274,7 +274,7 @@ class LogEntryManager(models.Manager):
         return pk
 
     def _get_serialized_data_or_none(self, instance):
-        from auditlog.registry import auditlog
+        from zelthy_enterprise.apps.auditlog.registry import auditlog
 
         opts = auditlog.get_serialize_options(instance.__class__)
         if not opts["serialize_data"]:
@@ -478,7 +478,7 @@ class LogEntry(models.Model):
         :return: The changes recorded in this log entry intended for display to users as a dictionary object.
         """
         # Get the model and model_fields
-        from auditlog.registry import auditlog
+        from zelthy_enterprise.apps.auditlog.registry import auditlog
 
         model = self.content_type.model_class()
         model_fields = auditlog.get_model_fields(model._meta.model)

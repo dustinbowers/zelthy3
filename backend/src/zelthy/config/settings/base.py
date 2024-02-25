@@ -1,4 +1,3 @@
-import sys
 import os
 
 import zelthy
@@ -39,6 +38,13 @@ SHARED_APPS = [
     "zelthy.apps.shared.platformauth",
 ]
 
+ENTERPRISE_APPS = []
+try:
+    __import__("zelthy_enterprise.apps.auditlog")
+    ENTERPRISE_APPS.append("zelthy_enterprise.apps.auditlog")
+except ImportError:
+    pass
+
 
 TENANT_APPS = [
     # The following Django contrib apps must be in TENANT_APPS
@@ -46,7 +52,6 @@ TENANT_APPS = [
     "zelthy.apps.appauth",
     "zelthy.apps.permissions",
     "zelthy.apps.object_store",
-    "zelthy_enterprise.apps.auditlog",
     "zelthy.apps.dynamic_models",
     "zelthy.apps.tasks",
     "corsheaders",
@@ -58,9 +63,11 @@ TENANT_APPS = [
     # "cachalot",
 ]
 
-INSTALLED_APPS = list(SHARED_APPS) + [
-    app for app in TENANT_APPS if app not in SHARED_APPS
-]
+INSTALLED_APPS = (
+    list(SHARED_APPS)
+    + [app for app in TENANT_APPS if app not in SHARED_APPS]
+    + ENTERPRISE_APPS
+)
 
 TENANT_MODEL = "tenancy.TenantModel"
 TENANT_DOMAIN_MODEL = "tenancy.Domain"
@@ -82,7 +89,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "zelthy.middleware.tenant.TimezoneMiddleware",
     "zelthy.middleware.request.HomePageMiddleware",
 ]

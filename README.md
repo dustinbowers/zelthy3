@@ -1,27 +1,36 @@
 <h1 align="center">
-    <a href="https://www.zelthy.com/"> 
-    <img src="https://yt3.googleusercontent.com/e1HArJ9U7Pj8MIf2MKGYW_6GGqdvwUTucgR6gs5u7LaBvAIfZT1INRASf0fOMC7ISVTDYqMPXw=s176-c-k-c0x00ffffff-no-rj" alt="Zelthy" width="80px">
+    <a href="https://www.zelthy.com/framework?referer=zelthy3-repo-landing"> 
+    <img src="https://zelthy-dev-static.s3.ap-south-1.amazonaws.com/framework_banner.png" alt="Zelthy" height="500px">
     </a>
 </h1>
 
+<p align="center">
+  <a href="https://www.zelthy.com/framework">Website</a> |
+  <a href="https://docs.zelthy.com/docs/category/getting-started">Getting Started </a>|
+  <a href="https://docs.zelthy.com/">Docs</a> |
+  <a href="https://www.youtube.com/@Zelthy-dev">Tutorials</a> |
+  <a href="https://discord.gg/qgbxfWeC">Discord</a>
+</p>
 
-[Website](https://www.zelthy.com/framework) • [Getting Started](https://docs.zelthy.com/docs/category/getting-started) • [Docs](https://docs.zelthy.com/)  • [Discord](https://discord.gg/qgbxfWeC)
+<p align="center">
+  <a href="#">
+        <img alt="PyPI version" src="https://badge.fury.io/py/zelthy3.svg"></a> 
+  <a href="#">
+      <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/Healthlane-Technologies/zelthy3/docs.yml?branch=main"></a> 
+  <a href="https://opensource.org/licenses/Apache-2.0">
+      <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"> </a>
+</p>
 
 
-[![PyPI version](https://badge.fury.io/py/zelthy3.svg)](https://badge.fury.io/py/zelthy3)
-![docs](https://img.shields.io/github/actions/workflow/status/Healthlane-Technologies/zelthy3/docs.yml?branch=main)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+**zelthy3** is a web application development framework built upon Django, designed to accelerate the development of custom business apps.
 
 
-## Zelthy is an open source multi-tenant Django framework for building business apps
-
-- Quickly build enterprise ready apps, leveraging the power of Django and Zelthy package ecosystem
-- Host multiple apps on a single deployment with complete isolation - Each app can have its own data models and workflows 
-- Built-in user management and user roles
-- Rich ecosystem of packages - Leverage the free packages to develop most of your app workflows. 
-- Granular policy and permission framework linking user roles with views and models
-- Open-core with all  non-enterprise features under the  Apache License allowing commercial and private use.
-
+- Leverage the stengths of Django, an already proven and battle tested web framework
+- Make available the basics of business web apps as part of the framework
+- Natively multi-tenant - Host multiple apps from a single deployment
+- Security & Compliances are built in.
+- Suite of essential packages to serve as the building blocks of Apps
+- Use case packages to build the industry specific use cases
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Healthlane-Technologies/zelthy3-gitpod-sandbox-official/)
 

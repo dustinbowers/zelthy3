@@ -1,6 +1,6 @@
 <h1 align="center">
     <a href="https://www.zelthy.com/framework?referer=zelthy3-repo-landing"> 
-    <img src="https://zelthy-dev-static.s3.ap-south-1.amazonaws.com/framework_banner.png" alt="Zelthy" height="500px">
+    <img src="https://zelthy-dev-static.s3.ap-south-1.amazonaws.com/framework_banner.png" alt="Zelthy" width="100%">
     </a>
 </h1>
 

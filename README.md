@@ -1,15 +1,15 @@
 <h1 align="center">
-    <a href="https://www.zelthy.com/framework?referer=zelthy3-repo-landing"> 
+    <a target="_blank" href="https://www.zelthy.com/framework?referer=zelthy3-repo-landing"> 
     <img src="https://zelthy-dev-static.s3.ap-south-1.amazonaws.com/framework_banner.png" alt="Zelthy" width="100%">
     </a>
 </h1>
 
 <p align="center">
-  <a href="https://www.zelthy.com/framework">Website</a> |
-  <a href="https://docs.zelthy.com/docs/category/getting-started">Getting Started </a>|
-  <a href="https://docs.zelthy.com/">Docs</a> |
-  <a href="https://www.youtube.com/@Zelthy-dev">Tutorials</a> |
-  <a href="https://discord.gg/qgbxfWeC">Discord</a>
+  <a href="https://www.zelthy.com/framework" target="_blank">Website</a> |
+  <a href="https://docs.zelthy.com/docs/category/getting-started" target="_blank">Getting Started </a>|
+  <a href="https://docs.zelthy.com/" target="_blank">Docs</a> |
+  <a href="https://www.youtube.com/@Zelthy-dev" target="_blank">Tutorials</a> |
+  <a href="https://discord.gg/qgbxfWeC" target="_blank">Discord</a>
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
         <img alt="PyPI version" src="https://badge.fury.io/py/zelthy3.svg"></a> 
   <a href="#">
       <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/Healthlane-Technologies/zelthy3/docs.yml?branch=main"></a> 
-  <a href="https://opensource.org/licenses/Apache-2.0">
+  <a href="https://opensource.org/licenses/Apache-2.0" target="_blank">
       <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"> </a>
 </p>
 
